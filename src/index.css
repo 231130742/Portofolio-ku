@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-dark-900 text-slate-300 font-sans antialiased selection:bg-brand-blue/30 selection:text-white overflow-x-hidden;
+    /* Noise texture overlay */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  /* Ultra Premium Aurora Background */
+  .bg-aurora {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background-color: #050505; /* Deeper black for ultra-premium feel */
+  }
+
+  /* Add a very subtle vignette to the edges */
+  .bg-aurora::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, #050505 100%);
+    opacity: 0.8;
+  }
+
+  .aurora-1, .aurora-2, .aurora-3 {
+    position: absolute;
+    filter: blur(100px); /* Increased blur for softer light */
+    opacity: 0.35; /* Lowered opacity for subtlety */
+    border-radius: 50%;
+    animation: aurora-move 20s infinite alternate ease-in-out; /* Slower animation */
+  }
+
+  .aurora-1 {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.4) 0%, transparent 70%);
+    animation-delay: 0s;
+  }
+
+  .aurora-2 {
+    bottom: -20%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, transparent 70%);
+    animation-delay: -7s;
+  }
+
+  .aurora-3 {
+    top: 40%;
+    left: 20%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.3) 0%, transparent 70%);
+    animation-delay: -14s;
+  }
+
+  @keyframes aurora-move {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(5%, 8%) scale(1.05) rotate(3deg); }
+    100% { transform: translate(-3%, -5%) scale(0.95) rotate(-3deg); }
+  }
+
+  @keyframes text-gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .animate-text-gradient {
+    background-size: 200% auto;
+    animation: text-gradient 4s linear infinite;
+  }
+
+  @keyframes grid-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(40px); }
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full hover:bg-slate-600 transition-colors;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/[0.02] backdrop-blur-3xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] relative overflow-hidden;
+  }
+  
+  /* Delicate top highlight to simulate real glass edge */
+  .glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    z-index: 10;
+  }
+}
