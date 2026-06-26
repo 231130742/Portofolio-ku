@@ -18,11 +18,11 @@ export function PortfolioProvider({ children }) {
     try {
       setIsLoading(true);
       const [projectsRes, expRes, docsRes, messagesRes, approvedMessagesRes] = await Promise.all([
-        fetch('http://localhost:5000/api/projects'),
-        fetch('http://localhost:5000/api/experiences'),
-        fetch('http://localhost:5000/api/docs'),
-        fetch('http://localhost:5000/api/messages'),
-        fetch('http://localhost:5000/api/messages/approved')
+        fetch('/api/projects'),
+        fetch('/api/experiences'),
+        fetch('/api/docs'),
+        fetch('/api/messages'),
+        fetch('/api/messages/approved')
       ]);
 
       if (projectsRes.ok) setProjects(await projectsRes.json());

@@ -63,7 +63,7 @@ export function Admin() {
       const delay = setTimeout(async () => {
         setIsFetchingMeta(true);
         try {
-          const res = await fetch('http://localhost:5000/api/docs/meta', {
+          const res = await fetch('/api/docs/meta', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: formData.external_link })
@@ -88,7 +88,7 @@ export function Admin() {
     
     const token = localStorage.getItem('admin_token');
     const headers = { 'Authorization': `Bearer ${token}` };
-    let url = `http://localhost:5000/api/${modalType}`;
+    let url = `/api/${modalType}`;
     if (editingId) url += `/${editingId}`;
 
     const method = editingId ? 'PUT' : 'POST';
@@ -152,7 +152,7 @@ export function Admin() {
   const handleDelete = async (type, id) => {
     if (!window.confirm('Yakin ingin menghapus data ini?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/${type}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/${type}/${id}`, { method: 'DELETE' });
       if (res.ok) refreshData();
     } catch (err) {
       console.error(err);
@@ -161,7 +161,7 @@ export function Admin() {
 
   const handleApproveMessage = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/messages/${id}/approve`, { method: 'PUT' });
+      const res = await fetch(`/api/messages/${id}/approve`, { method: 'PUT' });
       if (res.ok) refreshData();
     } catch (err) {
       console.error(err);
@@ -170,7 +170,7 @@ export function Admin() {
 
   const handleSuspendMessage = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/messages/${id}/suspend`, { method: 'PUT' });
+      const res = await fetch(`/api/messages/${id}/suspend`, { method: 'PUT' });
       if (res.ok) refreshData();
     } catch (err) {
       console.error(err);
