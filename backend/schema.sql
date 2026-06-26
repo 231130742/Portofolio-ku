@@ -1,6 +1,4 @@
-CREATE DATABASE IF NOT EXISTS portfolio_db;
-USE portfolio_db;
-
+-- Database diatur oleh connection string
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -24,6 +22,8 @@ CREATE TABLE IF NOT EXISTS experiences (
     role VARCHAR(100) NOT NULL,
     organization VARCHAR(150) NOT NULL,
     period VARCHAR(50) NOT NULL,
+    start_year INT NULL,
+    end_year INT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,9 +31,11 @@ CREATE TABLE IF NOT EXISTS experiences (
 CREATE TABLE IF NOT EXISTS docs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
-    type VARCHAR(20) NOT NULL DEFAULT 'image', -- 'image' or 'youtube' or 'video'
+    type VARCHAR(20) NOT NULL DEFAULT 'image', 
     url VARCHAR(255),
     description TEXT,
+    doc_date DATE NULL,
+    external_link VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

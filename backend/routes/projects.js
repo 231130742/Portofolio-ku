@@ -1,19 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const multer = require('multer');
-const path = require('path');
-
-// Multer storage configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, 'project-' + Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage });
+const { uploadProject } = require('../config/cloudinary');
 
 // Get all projects
 router.get('/', async (req, res) => {
@@ -32,10 +20,10 @@ router.get('/', async (req, res) => {
 });
 
 // Create a project
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', uploadProject.single('image'), async (req, res) => {
     try {
         const { title, description, technologies, github_url, live_url } = req.body;
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        const imageUrl = req.file ? req.file.path : null;
         
         // technologies might be a JSON string from frontend
         let techArray = technologies;
@@ -60,7 +48,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update a project
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', uploadProject.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, technologies, github_url, live_url } = req.body;
@@ -76,7 +64,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         const techJson = JSON.stringify(techArray || []);
 
         if (req.file) {
-            const imageUrl = `/uploads/${req.file.filename}`;
+            const imageUrl = req.file.path;
             await db.query(
                 'UPDATE projects SET title=?, description=?, image=?, technologies=?, github_url=?, live_url=? WHERE id=?',
                 [title, description, imageUrl, techJson, github_url || null, live_url || null, id]
