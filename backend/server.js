@@ -13,14 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Create uploads directory if it doesn't exist
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Serve static files from the uploads folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// (Folder uploads lokal dihapus karena sudah pakai Cloudinary)
 
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
@@ -36,6 +29,12 @@ app.use('/api/messages', messageRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Export app untuk Vercel Serverless
+module.exports = app;
+
+// Tetap jalankan server lokal jika tidak berjalan di Vercel
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
