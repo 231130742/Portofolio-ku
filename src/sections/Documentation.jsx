@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 
 export function Documentation() {
   const { docs } = usePortfolio();
+  const [expandedDocs, setExpandedDocs] = useState({});
+
+  const toggleExpand = (id) => {
+    setExpandedDocs(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   if (!docs || docs.length === 0) return null;
 
@@ -81,18 +86,25 @@ export function Documentation() {
                   {doc.title}
                 </h3>
                 
-                <p className="text-zinc-400 text-lg leading-relaxed font-light mb-8 max-w-2xl">
-                  {doc.description || "Tidak ada deskripsi tersedia untuk dokumentasi ini."}
+                <p className="text-zinc-400 text-lg leading-relaxed font-light mb-4 max-w-2xl whitespace-pre-wrap">
+                  {doc.description ? (doc.description.length > 430 && !expandedDocs[doc.id] ? doc.description.substring(0, 430) + '...' : doc.description) : "Tidak ada deskripsi tersedia untuk dokumentasi ini."}
                 </p>
 
-                {doc.external_link && (
-                  <div className="mt-auto">
+                <div className="mt-auto flex items-center gap-6">
+                  {doc.description && doc.description.length > 430 && (
+                    <button onClick={() => toggleExpand(doc.id)} className="inline-flex items-center gap-2 text-brand-blue font-bold uppercase tracking-widest text-sm hover:text-white transition-colors cursor-pointer">
+                      {expandedDocs[doc.id] ? 'Tutup' : 'Baca Selengkapnya'}
+                      {expandedDocs[doc.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                  )}
+
+                  {doc.external_link && (
                     <a href={doc.external_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white font-bold uppercase tracking-widest text-sm group-hover:text-brand-blue transition-colors cursor-pointer">
-                      Baca Selengkapnya
-                      <ArrowRight size={16} className="transform group-hover:translate-x-2 transition-transform" />
+                      Kunjungi Situs
+                      <ExternalLink size={16} className="transform group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
                     </a>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </motion.article>
           ))}

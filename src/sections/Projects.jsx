@@ -60,7 +60,7 @@ export function Projects() {
                   <div className="absolute inset-0 z-0 overflow-hidden">
                     <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 transition-opacity duration-500 ${isFeatured ? 'opacity-80 group-hover:opacity-60' : 'opacity-90 group-hover:opacity-70'}`} />
                     <img 
-                      src={project.image} 
+                      src={project.image && project.image.startsWith('/uploads') ? `http://localhost:5000${project.image}` : project.image} 
                       alt={project.title} 
                       className="object-cover w-full h-full scale-105 group-hover:scale-100 transition-transform duration-700 ease-out opacity-40 group-hover:opacity-60 grayscale group-hover:grayscale-0"
                     />

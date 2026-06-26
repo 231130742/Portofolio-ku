@@ -26,11 +26,13 @@ const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const experienceRoutes = require('./routes/experiences');
 const docRoutes = require('./routes/docs');
+const messageRoutes = require('./routes/messages');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/docs', docRoutes);
+app.use('/api/messages', messageRoutes);
 
 const PORT = process.env.PORT || 5000;
 

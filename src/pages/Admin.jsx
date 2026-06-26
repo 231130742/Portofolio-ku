@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Admin() {
-  const { projects, experiences, docs, refreshData } = usePortfolio();
+  const { projects, experiences, docs, messages, refreshData } = usePortfolio();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,6 +15,8 @@ export function Admin() {
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [metaImage, setMetaImage] = useState(null);
+  const [isFetchingMeta, setIsFetchingMeta] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
@@ -30,8 +32,8 @@ export function Admin() {
     if (item) {
       setFormData(item);
     } else {
-      if (type === 'projects') setFormData({ title: '', description: '', technologies: '', github_url: '', live_url: '' });
-      if (type === 'experiences') setFormData({ role: '', organization: '', period: '', description: '' });
+      if (type === 'projects') setFormData({ title: '', technologies: '', github_url: '', live_url: '', description: '', image: null });
+      if (type === 'experiences') setFormData({ role: item?.role || '', organization: item?.organization || '', start_year: item?.start_year || '', end_year: item?.end_year || '', period: item?.period || '', description: item?.description || '' });
       if (type === 'docs') setFormData({ title: '', type: 'image', url: '', description: '', doc_date: item?.doc_date ? item.doc_date.split('T')[0] : '', external_link: item?.external_link || '' });
     }
     
@@ -55,6 +57,30 @@ export function Admin() {
       setSelectedFile(e.target.files[0]);
     }
   };
+
+  React.useEffect(() => {
+    if (modalType === 'docs' && formData.external_link && !selectedFile) {
+      const delay = setTimeout(async () => {
+        setIsFetchingMeta(true);
+        try {
+          const res = await fetch('http://localhost:5000/api/docs/meta', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: formData.external_link })
+          });
+          const data = await res.json();
+          setMetaImage(data.image);
+        } catch (error) {
+          setMetaImage(null);
+        } finally {
+          setIsFetchingMeta(false);
+        }
+      }, 500);
+      return () => clearTimeout(delay);
+    } else {
+      setMetaImage(null);
+    }
+  }, [formData.external_link, modalType, selectedFile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,14 +108,24 @@ export function Admin() {
         if (selectedFile) bodyData.append('image', selectedFile);
       } 
       else if (modalType === 'docs') {
-        const calculatedType = selectedFile ? 'image' : (formData.url?.includes('youtube') || formData.url?.includes('youtu.be') ? 'youtube' : 'image');
+        const calculatedType = 'image'; // Selalu jadikan gambar sebagai output utama
+        
+        let finalUrl = formData.url; // Pertahankan URL gambar lama jika edit
+        let finalExternalLink = formData.external_link;
+
+        if (selectedFile) {
+           finalUrl = ''; // Akan diisi multer
+        } else if (metaImage) {
+           finalUrl = metaImage;
+        }
+
         bodyData = new FormData();
         bodyData.append('title', formData.title);
         bodyData.append('type', calculatedType);
         bodyData.append('description', formData.description);
-        bodyData.append('url', formData.url || '');
+        bodyData.append('url', finalUrl || '');
         bodyData.append('doc_date', formData.doc_date || '');
-        bodyData.append('external_link', formData.external_link || '');
+        bodyData.append('external_link', finalExternalLink || '');
         if (selectedFile) bodyData.append('file', selectedFile);
       } 
       else {
@@ -117,6 +153,24 @@ export function Admin() {
     if (!window.confirm('Yakin ingin menghapus data ini?')) return;
     try {
       const res = await fetch(`http://localhost:5000/api/${type}/${id}`, { method: 'DELETE' });
+      if (res.ok) refreshData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleApproveMessage = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/messages/${id}/approve`, { method: 'PUT' });
+      if (res.ok) refreshData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSuspendMessage = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/messages/${id}/suspend`, { method: 'PUT' });
       if (res.ok) refreshData();
     } catch (err) {
       console.error(err);
@@ -220,7 +274,7 @@ export function Admin() {
                   <div className="text-white font-bold text-lg">{exp.role}</div>
                   <div className="text-zinc-400 text-sm">{exp.organization}</div>
                 </td>
-                <td className="p-5 text-brand-blue text-sm font-mono bg-brand-blue/5 rounded-md inline-block mt-4">{exp.period}</td>
+                <td className="p-5"><span className="text-brand-blue text-sm font-mono bg-brand-blue/5 rounded-md inline-block px-2 py-1">{exp.start_year && exp.end_year ? `${exp.start_year} - ${exp.end_year}` : exp.period}</span></td>
                 <td className="p-5 text-right">
                    <div className="flex justify-end gap-3">
                     <button onClick={() => openModal('experiences', exp)} className="p-2.5 text-zinc-400 hover:text-white bg-white/5 rounded-lg transition-colors"><Edit2 size={16}/></button>
@@ -250,8 +304,8 @@ export function Admin() {
              {doc.type === 'youtube' ? (
                 <div className="aspect-video bg-black"><iframe width="100%" height="100%" src={doc.url} title={doc.title} frameBorder="0" allowFullScreen></iframe></div>
               ) : (
-                <div className="aspect-video bg-black">
-                  <img src={doc.url && doc.url.startsWith('/uploads') ? `http://localhost:5000${doc.url}` : doc.url} alt={doc.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                <div className="w-full aspect-video relative bg-black shrink-0 overflow-hidden">
+                  <img src={doc.url && doc.url.startsWith('/uploads') ? `http://localhost:5000${doc.url}` : doc.url} alt={doc.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 </div>
               )}
             <div className="p-5 flex-grow">
@@ -269,44 +323,148 @@ export function Admin() {
     </motion.div>
   );
 
+  const renderMessages = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-black text-white tracking-tight">Pesan & Komentar</h2>
+      </div>
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-zinc-950/80 border-b border-white/5 text-zinc-400 text-sm uppercase tracking-wider">
+              <th className="p-5 font-semibold">Pengirim</th>
+              <th className="p-5 font-semibold">Pesan</th>
+              <th className="p-5 font-semibold">Status</th>
+              <th className="p-5 font-semibold text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(messages || []).map(msg => (
+              <tr key={msg.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                <td className="p-5">
+                  <div className="text-white font-bold">{msg.name}</div>
+                  <div className="text-zinc-400 text-sm">{msg.email}</div>
+                  <div className="text-zinc-500 text-xs mt-1">{new Date(msg.created_at).toLocaleDateString('id-ID')}</div>
+                </td>
+                <td className="p-5 text-zinc-300 text-sm max-w-xs truncate" title={msg.message}>{msg.message}</td>
+                <td className="p-5">
+                  {msg.status === 'approved' ? (
+                    <span className="text-green-500 text-xs font-bold uppercase tracking-wider bg-green-500/10 px-2 py-1 rounded-md">Disetujui</span>
+                  ) : (
+                    <span className="text-yellow-500 text-xs font-bold uppercase tracking-wider bg-yellow-500/10 px-2 py-1 rounded-md">Pending</span>
+                  )}
+                </td>
+                <td className="p-5 text-right">
+                   <div className="flex justify-end gap-3">
+                    {msg.status === 'pending' ? (
+                      <button onClick={() => handleApproveMessage(msg.id)} className="p-2.5 text-green-400 hover:text-white bg-green-500/10 hover:bg-green-500 rounded-lg transition-colors" title="Setujui untuk ditampilkan"><CheckCircle size={16}/></button>
+                    ) : (
+                      <button onClick={() => handleSuspendMessage(msg.id)} className="p-2.5 text-orange-400 hover:text-white bg-orange-500/10 hover:bg-orange-500 rounded-lg transition-colors" title="Tangguhkan (Sembunyikan dari Publik)"><EyeOff size={16}/></button>
+                    )}
+                    <button onClick={() => handleDelete('messages', msg.id)} className="p-2.5 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 rounded-lg transition-colors" title="Hapus Permanen"><Trash2 size={16}/></button>
+                   </div>
+                </td>
+              </tr>
+            ))}
+            {(!messages || messages.length === 0) && <tr><td colSpan="4" className="p-8 text-center text-zinc-500">Belum ada pesan.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  );
+
   const renderModalContent = () => {
     if (modalType === 'projects') {
+      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (formData.image && formData.image.startsWith('/uploads') ? `http://localhost:5000${formData.image}` : formData.image);
+      const techArray = typeof formData.technologies === 'string' ? formData.technologies.split(',').map(t => t.trim()).filter(Boolean) : (formData.technologies || []);
+
       return (
-        <div className="space-y-5">
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Proyek <span className="text-red-500">*</span></label><input required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
-          
-          <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-1.5">Gambar Proyek</label>
-            <div className="relative border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-brand-blue/50 transition-colors bg-black/30">
-              <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-              <UploadCloud className="mx-auto text-zinc-500 mb-2" size={32} />
-              <p className="text-sm text-zinc-400">{selectedFile ? selectedFile.name : (formData.image ? 'Gambar sudah ada, klik untuk mengganti' : 'Klik atau drag gambar ke sini')}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="space-y-5">
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Proyek <span className="text-red-500">*</span></label><input required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
+            
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Gambar Proyek</label>
+              <div className="relative border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-brand-blue/50 transition-colors bg-black/30">
+                <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <UploadCloud className="mx-auto text-zinc-500 mb-2" size={32} />
+                <p className="text-sm text-zinc-400">{selectedFile ? selectedFile.name : (formData.image ? 'Gambar sudah ada, klik untuk mengganti' : 'Klik atau drag gambar ke sini')}</p>
+              </div>
             </div>
+
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Teknologi <span className="text-red-500">*</span></label><input required name="technologies" value={Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" placeholder="React, Node.js, Tailwind" /></div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">GitHub URL <span className="text-xs text-zinc-600">(Opsional)</span></label><input name="github_url" value={formData.github_url || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Live URL <span className="text-xs text-zinc-600">(Opsional)</span></label><input name="live_url" value={formData.live_url || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
+            </div>
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Deskripsi Singkat <span className="text-red-500">*</span></label><textarea required name="description" value={formData.description || ''} onChange={handleInputChange} rows="3" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none resize-none transition-colors"></textarea></div>
           </div>
 
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Teknologi <span className="text-red-500">*</span></label><input required name="technologies" value={Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" placeholder="React, Node.js, Tailwind" /></div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">GitHub URL <span className="text-xs text-zinc-600">(Opsional)</span></label><input name="github_url" value={formData.github_url || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Live URL <span className="text-xs text-zinc-600">(Opsional)</span></label><input name="live_url" value={formData.live_url || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none transition-colors" /></div>
+          <div className="bg-zinc-950/50 border border-white/5 rounded-2xl p-6 sticky top-0">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Live Preview (Card Proyek)</h3>
+            
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl flex flex-col pointer-events-none relative aspect-[4/3]">
+              {/* Image Background */}
+              <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+                {previewImage ? (
+                   <img src={previewImage} alt="Preview" className="object-cover w-full h-full opacity-60" />
+                ) : (
+                   <div className="absolute inset-0 flex items-center justify-center text-zinc-600">
+                     <span className="text-sm font-medium">Preview Gambar</span>
+                   </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="relative z-20 flex flex-col h-full justify-end p-6">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {techArray.length > 0 ? techArray.slice(0,3).map((tech, i) => (
+                    <span key={i} className="text-[10px] uppercase tracking-widest font-bold text-white bg-white/10 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+                      {tech}
+                    </span>
+                  )) : (
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-white bg-white/10 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+                      Teknologi
+                    </span>
+                  )}
+                </div>
+                
+                <h3 className="font-bold text-white mb-2 text-xl tracking-tight">
+                  {formData.title || 'Judul Proyek'}
+                </h3>
+                
+                <p className="text-zinc-400 font-light text-xs line-clamp-2">
+                  {formData.description || 'Deskripsi proyek akan tampil di sini...'}
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-brand-blue mt-4 bg-brand-blue/10 p-3 rounded-lg leading-relaxed text-center font-medium">
+              * Di website utama, rasio gambar otomatis diatur (tergantung besar grid) dengan <b>object-cover</b> agar tidak gepeng atau pecah.
+            </p>
           </div>
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Deskripsi Singkat <span className="text-red-500">*</span></label><textarea required name="description" value={formData.description || ''} onChange={handleInputChange} rows="3" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-brand-blue focus:outline-none resize-none transition-colors"></textarea></div>
         </div>
       );
     }
     if (modalType === 'experiences') {
       return (
         <div className="space-y-5">
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Peran / Jabatan <span className="text-red-500">*</span></label><input required name="role" value={formData.role || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Nama Organisasi / Perusahaan <span className="text-red-500">*</span></label><input required name="organization" value={formData.organization || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
-          <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Periode <span className="text-red-500">*</span></label><input required name="period" value={formData.period || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" placeholder="2024 - Sekarang" /></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Peran / Jabatan <span className="text-red-500">*</span></label><input required name="role" value={formData.role || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Nama Organisasi <span className="text-red-500">*</span></label><input required name="organization" value={formData.organization || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Mulai Tahun <span className="text-red-500">*</span></label><input required name="start_year" placeholder="Contoh: 2020" value={formData.start_year || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Sampai Tahun <span className="text-red-500">*</span></label><input required name="end_year" placeholder="Contoh: Sekarang atau 2024" value={formData.end_year || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none transition-colors" /></div>
+          </div>
           <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Deskripsi Tugas <span className="text-red-500">*</span></label><textarea required name="description" value={formData.description || ''} onChange={handleInputChange} rows="4" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-green-500 focus:outline-none resize-none transition-colors"></textarea></div>
         </div>
       );
     }
     if (modalType === 'docs') {
-      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (formData.url && formData.url.startsWith('/uploads') ? `http://localhost:5000${formData.url}` : formData.url);
-      const isYoutubePreview = !selectedFile && (formData.url?.includes('youtube.com') || formData.url?.includes('youtu.be'));
+      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (metaImage || (formData.url && formData.url.startsWith('/uploads') ? `http://localhost:5000${formData.url}` : formData.url));
+      const hasAnyLink = formData.external_link;
 
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -315,21 +473,23 @@ export function Admin() {
             
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5">Tanggal <span className="text-xs text-zinc-500">(Kosongkan untuk hari ini)</span></label>
-              <input type="date" name="doc_date" value={formData.doc_date ? formData.doc_date.split('T')[0] : ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" />
+              <input type="date" name="doc_date" value={formData.doc_date ? formData.doc_date.split('T')[0] : ''} onChange={handleInputChange} style={{ colorScheme: 'dark' }} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Media Utama (Upload File) <span className="text-xs text-zinc-500">(Prioritas)</span></label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Media Utama (Upload File) <span className="text-xs text-zinc-500">(Prioritas JPG/PNG)</span></label>
               <div className="relative border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-purple-500/50 transition-colors bg-black/30">
-                <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 <UploadCloud className="mx-auto text-zinc-500 mb-2" size={32} />
                 <p className="text-sm text-zinc-400">{selectedFile ? selectedFile.name : (formData.url && formData.url.startsWith('/uploads') ? 'File sudah ada, klik untuk mengganti' : 'Klik atau drag file gambar ke sini')}</p>
               </div>
             </div>
 
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Atau URL Media (Link YouTube / Gambar)</label><input name="url" value={formData.url || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" placeholder="https://..." /></div>
-            
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Link Eksternal (Opsional - Munculkan tombol 'Baca Selengkapnya')</label><input type="url" name="external_link" value={formData.external_link || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" placeholder="https://..." /></div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Link Eksternal / Media (YouTube, Website, dll) <span className="text-xs text-zinc-500">(Opsional)</span></label>
+              <input type="url" name="external_link" value={formData.external_link || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" placeholder="https://..." />
+              <p className="text-xs text-zinc-500 mt-2">* Link ini jadi tujuan tombol "Baca Selengkapnya". Jika kamu tidak mengupload gambar di atas, sistem akan otomatis menarik gambar dari link ini.</p>
+            </div>
             
             <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Deskripsi / Isi <span className="text-red-500">*</span></label><textarea required name="description" value={formData.description || ''} onChange={handleInputChange} rows="4" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none resize-none transition-colors"></textarea></div>
           </div>
@@ -339,10 +499,14 @@ export function Admin() {
             
             <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl flex flex-col pointer-events-none">
               <div className="w-full aspect-video relative bg-black shrink-0 overflow-hidden">
-                {isYoutubePreview ? (
-                  <iframe width="100%" height="100%" src={formData.url} title="Preview" frameBorder="0" className="absolute inset-0 w-full h-full object-cover"></iframe>
+                {previewImage ? (
+                  <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  previewImage ? <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" /> : <div className="absolute inset-0 flex items-center justify-center text-zinc-600"><span className="text-sm font-medium">Preview Media</span></div>
+                  <div className="absolute inset-0 flex items-center justify-center text-zinc-600 bg-zinc-900">
+                    <span className="text-sm font-medium flex gap-2 items-center">
+                       {isFetchingMeta ? 'Mencari Gambar di Web...' : 'Preview Media (16:9)'}
+                    </span>
+                  </div>
                 )}
               </div>
               <div className="p-5 flex-grow">
@@ -351,12 +515,14 @@ export function Admin() {
                   <span>{formData.doc_date ? new Date(formData.doc_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Tanggal Hari Ini'}</span>
                 </div>
                 <h3 className="font-bold text-base text-white mb-2 leading-tight">{formData.title || 'Judul Dokumentasi'}</h3>
-                <p className="text-xs text-zinc-400 line-clamp-2">{formData.description || 'Deskripsi dokumentasi akan tampil di sini...'}</p>
-                {formData.external_link && (
+                <p className="text-xs text-zinc-400">
+                  {formData.description ? (formData.description.length > 430 ? formData.description.substring(0, 430) + '...' : formData.description) : 'Deskripsi dokumentasi akan tampil di sini...'}
+                </p>
+                {hasAnyLink && (
                   <div className="mt-3">
                     <span className="inline-flex items-center gap-1.5 text-white font-bold uppercase tracking-widest text-[10px] text-brand-blue">
-                      Baca Selengkapnya
-                      <ArrowRight size={12} />
+                      Kunjungi Situs
+                      <ExternalLink size={12} />
                     </span>
                   </div>
                 )}
@@ -399,6 +565,9 @@ export function Admin() {
           <button onClick={() => setActiveTab('docs')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <FileText size={18} /> Dokumentasi
           </button>
+          <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'messages' ? 'bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+            <MessageSquare size={18} /> Pesan & Komentar
+          </button>
         </nav>
         <div className="p-6 border-t border-white/5 space-y-3">
           <Link to="/" className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-zinc-400 bg-white/5 hover:text-white hover:bg-white/10 transition-all border border-white/5">
@@ -416,6 +585,7 @@ export function Admin() {
         {activeTab === 'projects' && renderProjects()}
         {activeTab === 'experiences' && renderExperiences()}
         {activeTab === 'docs' && renderDocs()}
+        {activeTab === 'messages' && renderMessages()}
       </main>
 
       {/* Modal / Form Overlay */}
@@ -427,7 +597,7 @@ export function Admin() {
           >
             <motion.div 
               initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-              className={`bg-zinc-900/90 border border-white/10 rounded-3xl w-full ${modalType === 'docs' ? 'max-w-4xl' : 'max-w-xl'} overflow-hidden shadow-2xl shadow-black`}
+              className={`bg-zinc-900/90 border border-white/10 rounded-3xl w-full ${['docs', 'projects'].includes(modalType) ? 'max-w-4xl' : 'max-w-xl'} overflow-hidden shadow-2xl shadow-black`}
             >
               <div className="flex justify-between items-center p-6 md:px-8 border-b border-white/5 bg-white/5">
                 <h2 className="text-xl font-bold">{editingId ? 'Edit Data' : 'Tambah Data Baru'}</h2>

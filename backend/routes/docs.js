@@ -25,6 +25,39 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Fetch URL Metadata (thumbnail)
+router.post('/meta', async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) return res.json({ image: null });
+
+        // Check if youtube
+        const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(ytRegExp);
+        if (match && match[2].length === 11) {
+            return res.json({ image: `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` });
+        }
+
+        // Fetch HTML for og:image
+        const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+        const html = await response.text();
+        const ogImageMatch = html.match(/<meta\s+(?:property|name)=["'](?:og:image|twitter:image)["']\s+content=["'](.*?)["']/i) || 
+                             html.match(/<meta\s+content=["'](.*?)["']\s+(?:property|name)=["'](?:og:image|twitter:image)["']/i);
+        
+        if (ogImageMatch && ogImageMatch[1]) {
+            let imgUrl = ogImageMatch[1];
+            if (imgUrl.startsWith('/')) {
+                const urlObj = new URL(url);
+                imgUrl = `${urlObj.protocol}//${urlObj.host}${imgUrl}`;
+            }
+            return res.json({ image: imgUrl });
+        }
+        res.json({ image: null });
+    } catch (error) {
+        res.json({ image: null });
+    }
+});
+
 // Create doc
 router.post('/', upload.single('file'), async (req, res) => {
     try {
