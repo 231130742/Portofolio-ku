@@ -53,27 +53,25 @@ export function Login() {
         />
       </div>
 
-      {/* Floating Particles */}
+      {/* Background Ornament (Static) */}
       <div className="absolute inset-0 z-0 pointer-events-none hidden md:block">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
+        {[...Array(3)].map((_, i) => (
+          <div
             key={i}
             className="absolute bg-white/5 rounded-full backdrop-blur-3xl border border-white/10"
             style={{
-              width: Math.random() * 80 + 40,
-              height: Math.random() * 80 + 40,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
+              width: (i * 20) + 60,
+              height: (i * 20) + 60,
+              top: `${(i * 30) + 10}%`,
+              left: `${(i * 25) + 15}%`,
             }}
-            animate={{ y: [0, -40, 0], x: [0, 30, 0], rotate: [0, 180, 0] }}
-            transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
           />
         ))}
       </div>
 
       <div className="relative z-10 w-full max-w-[440px]">
-        {/* Animated Glow Behind Card */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue via-purple-500 to-brand-blue rounded-[2.5rem] blur-xl opacity-30 animate-pulse"></div>
+        {/* Static Glow Behind Card */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue via-purple-500 to-brand-blue rounded-[2.5rem] blur-xl opacity-20"></div>
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -92,12 +90,9 @@ export function Login() {
             >
               <div className="absolute inset-0 rounded-3xl border border-white/10 group-hover:border-brand-blue/50 transition-colors duration-500" />
               <ShieldCheck size={48} strokeWidth={1.5} className="drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
-              <motion.div 
-                animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-3 -right-3 text-purple-400"
-              >
+              <div className="absolute -top-3 -right-3 text-purple-400">
                 <Sparkles size={20} />
-              </motion.div>
+              </div>
             </motion.div>
 
             <motion.h1 
