@@ -11,8 +11,8 @@ require('dotenv').config();
 // 4. Selesai! Anda bisa langsung login dengan kredensial baru tersebut.
 // =======================================================================
 
-const NEW_USERNAME = 'admin';       // <--- Ganti username baru di sini
-const NEW_PASSWORD = 'password123'; // <--- Ganti password baru di sini
+const NEW_USERNAME = 'roihan';       // <--- Ganti username baru di sini
+const NEW_PASSWORD = 'roihan0805'; // <--- Ganti password baru di sini
 
 async function fixPassword() {
     try {
@@ -32,10 +32,10 @@ async function fixPassword() {
         const hashedPassword = await bcrypt.hash(NEW_PASSWORD, salt);
 
         console.log('Memperbarui data di database...');
-        
+
         // Pertama, cek apakah tabel users ada isinya
         const [users] = await connection.query("SELECT * FROM users");
-        
+
         if (users.length === 0) {
             // Jika belum ada user sama sekali, kita buat baru (INSERT)
             await connection.query(
