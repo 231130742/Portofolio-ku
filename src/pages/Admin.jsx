@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Admin() {
@@ -9,6 +9,7 @@ export function Admin() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(''); 
   const [editingId, setEditingId] = useState(null);
@@ -207,14 +208,14 @@ export function Admin() {
 
   const renderProjects = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-black text-white tracking-tight">Manajemen Proyek</h2>
-        <button onClick={() => openModal('projects')} className="flex items-center gap-2 bg-brand-blue hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.5)] font-bold">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Manajemen Proyek</h2>
+        <button onClick={() => openModal('projects')} className="flex items-center gap-2 bg-brand-blue hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.5)] font-bold w-full sm:w-auto justify-center">
           <Plus size={18} /> Tambah Proyek
         </button>
       </div>
-      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-x-auto shadow-2xl">
+        <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="bg-zinc-950/80 border-b border-white/5 text-zinc-400 text-sm uppercase tracking-wider">
               <th className="p-5 font-semibold">Judul</th>
@@ -252,14 +253,14 @@ export function Admin() {
 
   const renderExperiences = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-black text-white tracking-tight">Manajemen Pengalaman</h2>
-        <button onClick={() => openModal('experiences')} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(22,163,74,0.5)] font-bold">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Manajemen Pengalaman</h2>
+        <button onClick={() => openModal('experiences')} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(22,163,74,0.5)] font-bold w-full sm:w-auto justify-center">
           <Plus size={18} /> Tambah Pengalaman
         </button>
       </div>
-      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-x-auto shadow-2xl">
+        <table className="w-full min-w-[600px] text-left border-collapse">
           <thead>
             <tr className="bg-zinc-950/80 border-b border-white/5 text-zinc-400 text-sm uppercase tracking-wider">
               <th className="p-5 font-semibold">Peran / Organisasi</th>
@@ -292,9 +293,9 @@ export function Admin() {
 
   const renderDocs = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-black text-white tracking-tight">Manajemen Dokumentasi</h2>
-        <button onClick={() => openModal('docs')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(147,51,234,0.5)] font-bold">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Manajemen Dokumentasi</h2>
+        <button onClick={() => openModal('docs')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(147,51,234,0.5)] font-bold w-full sm:w-auto justify-center">
           <Plus size={18} /> Tambah Dokumentasi
         </button>
       </div>
@@ -325,11 +326,11 @@ export function Admin() {
 
   const renderMessages = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-black text-white tracking-tight">Pesan & Komentar</h2>
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Pesan & Komentar</h2>
       </div>
-      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-x-auto shadow-2xl">
+        <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="bg-zinc-950/80 border-b border-white/5 text-zinc-400 text-sm uppercase tracking-wider">
               <th className="p-5 font-semibold">Pengirim</th>
@@ -546,30 +547,53 @@ export function Admin() {
          <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px]" />
       </div>
 
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-black/40 backdrop-blur-md relative z-20">
+        <h1 className="text-xl font-black tracking-tighter">Admin<span className="text-brand-blue">.</span></h1>
+        <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-white/5 rounded-lg text-white">
+          <Menu size={24} />
+        </button>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-black/40 backdrop-blur-3xl border-r border-white/5 flex flex-col pt-10 relative z-10">
-        <div className="px-8 mb-12">
-          <h1 className="text-3xl font-black tracking-tighter">Admin<span className="text-brand-blue">.</span></h1>
+      <aside className={`fixed md:static inset-y-0 left-0 w-72 md:w-72 bg-[#050505]/95 md:bg-black/40 backdrop-blur-3xl border-r border-white/5 flex flex-col pt-6 md:pt-10 z-40 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <button 
+          onClick={() => setIsSidebarOpen(false)}
+          className="md:hidden absolute top-4 right-4 p-2 text-zinc-400 hover:text-white bg-white/5 rounded-lg"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="px-8 mb-8 md:mb-12">
+          <h1 className="text-3xl font-black tracking-tighter hidden md:block">Admin<span className="text-brand-blue">.</span></h1>
           <p className="text-zinc-500 text-sm mt-1">Portfolio Manager</p>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
-          <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-brand-blue text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+          <button onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-brand-blue text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <LayoutDashboard size={18} /> Dashboard
           </button>
-          <button onClick={() => setActiveTab('projects')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'projects' ? 'bg-brand-blue text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+          <button onClick={() => { setActiveTab('projects'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'projects' ? 'bg-brand-blue text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <Briefcase size={18} /> Proyek
           </button>
-          <button onClick={() => setActiveTab('experiences')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'experiences' ? 'bg-green-600 text-white shadow-[0_0_20px_rgba(22,163,74,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+          <button onClick={() => { setActiveTab('experiences'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'experiences' ? 'bg-green-600 text-white shadow-[0_0_20px_rgba(22,163,74,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <Users size={18} /> Pengalaman
           </button>
-          <button onClick={() => setActiveTab('docs')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+          <button onClick={() => { setActiveTab('docs'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <FileText size={18} /> Dokumentasi
           </button>
-          <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'messages' ? 'bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+          <button onClick={() => { setActiveTab('messages'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'messages' ? 'bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <MessageSquare size={18} /> Pesan & Komentar
           </button>
         </nav>
-        <div className="p-6 border-t border-white/5 space-y-3">
+        <div className="p-6 border-t border-white/5 space-y-3 mt-auto">
           <Link to="/" className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-zinc-400 bg-white/5 hover:text-white hover:bg-white/10 transition-all border border-white/5">
             <ExternalLink size={18} /> Buka Website Publik
           </Link>
@@ -580,7 +604,7 @@ export function Admin() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto h-screen relative z-10">
+      <main className="flex-1 p-4 md:p-12 overflow-y-auto h-[calc(100vh-73px)] md:h-screen relative z-10 w-full">
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'projects' && renderProjects()}
         {activeTab === 'experiences' && renderExperiences()}
