@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, User, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
@@ -8,16 +8,7 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -50,18 +41,14 @@ export function Login() {
   return (
     <div className="min-h-screen bg-[#030303] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       
-      {/* Interactive Ambient Background */}
+      {/* Static Ambient Background */}
       <div className="absolute inset-0 z-0">
-        <motion.div 
+        <div 
           className="absolute w-[60vw] h-[60vw] bg-brand-blue/10 rounded-full blur-[120px]"
-          animate={{ x: mousePosition.x * 0.05, y: mousePosition.y * 0.05 }}
-          transition={{ type: 'tween', ease: 'easeOut', duration: 2 }}
           style={{ top: '-10%', left: '-10%' }}
         />
-        <motion.div 
+        <div 
           className="absolute w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px]"
-          animate={{ x: mousePosition.x * -0.05, y: mousePosition.y * -0.05 }}
-          transition={{ type: 'tween', ease: 'easeOut', duration: 2.5 }}
           style={{ bottom: '-10%', right: '-10%' }}
         />
       </div>
