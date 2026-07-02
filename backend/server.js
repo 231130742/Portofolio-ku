@@ -27,6 +27,17 @@ app.use('/api/experiences', experienceRoutes);
 app.use('/api/docs', docRoutes);
 app.use('/api/messages', messageRoutes);
 
+// Endpoint Ping untuk mencegah Aiven dari Sleep (dipanggil oleh cron-job.org)
+const db = require('./config/db');
+app.get('/api/ping', async (req, res) => {
+    try {
+        await db.query('SELECT 1');
+        res.status(200).json({ status: 'ok', message: 'Database is awake! 🚀' });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: 'Database error', error: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Export app untuk Vercel Serverless
