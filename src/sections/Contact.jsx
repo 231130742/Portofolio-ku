@@ -91,6 +91,7 @@ export function Contact() {
                 <input
                   type="text"
                   id="name"
+                  aria-label="Nama Lengkap"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
@@ -104,6 +105,7 @@ export function Contact() {
                 <input
                   type="email"
                   id="email"
+                  aria-label="Alamat Email"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -116,6 +118,7 @@ export function Contact() {
               <div className="relative group">
                 <textarea
                   id="message"
+                  aria-label="Isi Pesan"
                   value={formData.message}
                   onChange={handleInputChange}
                   required

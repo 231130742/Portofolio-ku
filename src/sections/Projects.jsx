@@ -60,8 +60,11 @@ export function Projects() {
                   <div className="absolute inset-0 z-0 overflow-hidden">
                     <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 transition-opacity duration-500 ${isFeatured ? 'opacity-80 group-hover:opacity-60' : 'opacity-90 group-hover:opacity-70'}`} />
                     <img 
-                      src={project.image && project.image.startsWith('/uploads') ? `http://localhost:5000${project.image}` : project.image} 
-                      alt={project.title} 
+                      src={project.image} 
+                      alt={`Screenshot proyek ${project.title}`} 
+                      width="600"
+                      height="400"
+                      loading="lazy"
                       className="object-cover w-full h-full scale-105 group-hover:scale-100 transition-transform duration-700 ease-out opacity-40 group-hover:opacity-60 grayscale group-hover:grayscale-0"
                     />
                   </div>
@@ -89,18 +92,20 @@ export function Projects() {
                         <a 
                           href={project.githubUrl} 
                           target="_blank" 
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
+                          aria-label={`Lihat kode sumber ${project.title} di GitHub`}
                           className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
                         >
-                          <FaGithub size={18} /> Lihat Kode
+                          <FaGithub size={18} aria-hidden="true" /> Lihat Kode
                         </a>
                         <a 
                           href={project.liveUrl} 
                           target="_blank" 
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
+                          aria-label={`Kunjungi situs live ${project.title}`}
                           className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
                         >
-                          <ExternalLink size={18} /> Kunjungi Situs
+                          <ExternalLink size={18} aria-hidden="true" /> Kunjungi Situs
                         </a>
                       </div>
                     </div>

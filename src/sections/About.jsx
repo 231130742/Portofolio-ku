@@ -40,7 +40,10 @@ export function About() {
                 <div className="absolute inset-0 bg-brand-blue/10 mix-blend-overlay z-10"></div>
                 <img
                   src="https://images.unsplash.com/photo-1549692520-acc6669e2f0c?q=80&w=1000&auto=format&fit=crop"
-                  alt="Roihan Sabila Harahap coding"
+                  alt="Ilustrasi Roihan Sabila Harahap coding"
+                  width="1000"
+                  height="667"
+                  loading="lazy"
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
               </div>

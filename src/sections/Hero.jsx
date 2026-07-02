@@ -90,13 +90,14 @@ export function Hero() {
             >
               <a
                 href="#projects"
+                aria-label="Gulir ke bagian Proyek"
                 className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-black rounded-full overflow-hidden transition-transform active:scale-95"
               >
                 <div className="absolute inset-0 bg-brand-blue translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
                 <span className="relative z-10 font-bold text-lg group-hover:text-white transition-colors duration-300">
                   Jelajahi Proyek
                 </span>
-                <ArrowRight className="relative z-10 w-5 h-5 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                <ArrowRight className="relative z-10 w-5 h-5 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" aria-hidden="true" />
               </a>
             </motion.div>
           </div>
@@ -116,7 +117,10 @@ export function Hero() {
               <div className="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/20 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-md shadow-2xl">
                 <img
                   src={foto}
-                  alt="Roihan Sabila Harahap"
+                  alt="Foto Profil Roihan Sabila Harahap"
+                  width="400"
+                  height="500"
+                  fetchpriority="high"
                   className="absolute bottom-0 w-full h-full object-cover object-top transition-all duration-700 hover:scale-[1.05] grayscale brightness-75 hover:grayscale-0 hover:brightness-100"
                 />
               </div>

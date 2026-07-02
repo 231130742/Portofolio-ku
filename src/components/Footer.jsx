@@ -1,6 +1,5 @@
-﻿import React from 'react';
-import { Mail } from 'lucide-react';
-import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import React from 'react';
+import { FaGithub, FaLinkedinIn, FaInstagram, FaEnvelope } from 'react-icons/fa';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -20,17 +19,17 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
-              <FaGithub size={20} />
+            <a href="#" aria-label="Kunjungi Github saya" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
+              <FaGithub size={18} aria-hidden="true" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
-              <FaLinkedin size={20} />
+            <a href="#" aria-label="Kunjungi LinkedIn saya" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
+              <FaLinkedinIn size={18} aria-hidden="true" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
-              <FaTwitter size={20} />
+            <a href="#" aria-label="Kunjungi Instagram saya" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
+              <FaInstagram size={18} aria-hidden="true" />
             </a>
-            <a href="mailto:hello@example.com" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
-              <Mail size={20} />
+            <a href="mailto:roihansabilaharahap08@gmail.com" aria-label="Kirim Email ke saya" className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-slate-300 hover:bg-brand-blue hover:text-white transition-all">
+              <FaEnvelope size={18} aria-hidden="true" />
             </a>
           </div>
         </div>
