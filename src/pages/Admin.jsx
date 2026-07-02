@@ -111,7 +111,8 @@ export function Admin() {
           try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
             const compressedFile = await imageCompression(selectedFile, options);
-            bodyData.append('image', compressedFile);
+            const newName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".webp";
+            bodyData.append('image', compressedFile, newName);
           } catch (e) {
             bodyData.append('image', selectedFile);
           }
@@ -140,7 +141,8 @@ export function Admin() {
           try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
             const compressedFile = await imageCompression(selectedFile, options);
-            bodyData.append('file', compressedFile);
+            const newName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".webp";
+            bodyData.append('file', compressedFile, newName);
           } catch (e) {
             bodyData.append('file', selectedFile);
           }
