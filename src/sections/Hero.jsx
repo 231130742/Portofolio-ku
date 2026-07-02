@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import foto from '../assets/section1benar.png';
+import foto from '../assets/section1benar.webp';
 
 const TypewriterText = ({ text, delay = 0 }) => {
   const count = useMotionValue(0);
