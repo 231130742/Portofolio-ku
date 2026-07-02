@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const { uploadDoc } = require('../config/cloudinary');
+const { cloudinary } = require('../config/cloudinary');
 
 // Get all docs
 router.get('/', async (req, res) => {
@@ -48,13 +48,14 @@ router.post('/meta', async (req, res) => {
 });
 
 // Create doc
-router.post('/', uploadDoc.single('file'), async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { title, type, url: inputUrl, description, doc_date, external_link } = req.body;
+        const { title, type, url: inputUrl, description, doc_date, external_link, file } = req.body;
         let finalUrl = inputUrl || null;
 
-        if (req.file) {
-            finalUrl = req.file.path;
+        if (file && file.startsWith('data:image')) {
+            const uploadRes = await cloudinary.uploader.upload(file, { folder: 'portfolio_docs' });
+            finalUrl = uploadRes.secure_url;
             // Let frontend define type if it uploads file (could be 'image' or 'video')
         }
 
@@ -72,17 +73,22 @@ router.post('/', uploadDoc.single('file'), async (req, res) => {
 });
 
 // Update doc
-router.put('/:id', uploadDoc.single('file'), async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
-        const { title, type, url: inputUrl, description, doc_date, external_link } = req.body;
+        const { title, type, url: inputUrl, description, doc_date, external_link, file } = req.body;
         const { id } = req.params;
         const finalDate = doc_date || new Date().toISOString().split('T')[0];
 
-        if (req.file) {
-            const finalUrl = req.file.path;
+        let fileUrl = null;
+        if (file && file.startsWith('data:image')) {
+            const uploadRes = await cloudinary.uploader.upload(file, { folder: 'portfolio_docs' });
+            fileUrl = uploadRes.secure_url;
+        }
+
+        if (fileUrl) {
             await db.query(
                 'UPDATE docs SET title=?, type=?, url=?, description=?, doc_date=?, external_link=? WHERE id=?',
-                [title, type, finalUrl, description, finalDate, external_link || null, id]
+                [title, type, fileUrl, description, finalDate, external_link || null, id]
             );
         } else {
             await db.query(

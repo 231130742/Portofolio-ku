@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const { uploadProject } = require('../config/cloudinary');
+const { cloudinary } = require('../config/cloudinary');
 
 // Get all projects
 router.get('/', async (req, res) => {
@@ -20,10 +20,15 @@ router.get('/', async (req, res) => {
 });
 
 // Create a project
-router.post('/', uploadProject.single('image'), async (req, res) => {
+router.post('/', async (req, res) => {
     try {
-        const { title, description, technologies, github_url, live_url } = req.body;
-        const imageUrl = req.file ? req.file.path : null;
+        const { title, description, technologies, github_url, live_url, image } = req.body;
+        
+        let imageUrl = null;
+        if (image && image.startsWith('data:image')) {
+            const uploadRes = await cloudinary.uploader.upload(image, { folder: 'portfolio_projects' });
+            imageUrl = uploadRes.secure_url;
+        }
         
         // technologies might be a JSON string from frontend
         let techArray = technologies;
@@ -48,10 +53,10 @@ router.post('/', uploadProject.single('image'), async (req, res) => {
 });
 
 // Update a project
-router.put('/:id', uploadProject.single('image'), async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, technologies, github_url, live_url } = req.body;
+        const { title, description, technologies, github_url, live_url, image } = req.body;
         
         let techArray = technologies;
         if (typeof technologies === 'string') {
@@ -63,8 +68,13 @@ router.put('/:id', uploadProject.single('image'), async (req, res) => {
         }
         const techJson = JSON.stringify(techArray || []);
 
-        if (req.file) {
-            const imageUrl = req.file.path;
+        let imageUrl = null;
+        if (image && image.startsWith('data:image')) {
+            const uploadRes = await cloudinary.uploader.upload(image, { folder: 'portfolio_projects' });
+            imageUrl = uploadRes.secure_url;
+        }
+
+        if (imageUrl) {
             await db.query(
                 'UPDATE projects SET title=?, description=?, image=?, technologies=?, github_url=?, live_url=? WHERE id=?',
                 [title, description, imageUrl, techJson, github_url || null, live_url || null, id]

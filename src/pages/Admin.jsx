@@ -98,60 +98,73 @@ export function Admin() {
     try {
       let bodyData;
       let finalHeaders = { ...headers };
+      finalHeaders['Content-Type'] = 'application/json';
 
-      // Use FormData if there is a file upload
+      const getBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+
+      // Use JSON payload instead of FormData to bypass Vercel serverless limits and multer bugs
       if (modalType === 'projects') {
-        bodyData = new FormData();
-        bodyData.append('title', formData.title);
-        bodyData.append('description', formData.description);
-        bodyData.append('technologies', Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies);
-        bodyData.append('github_url', formData.github_url || '');
-        bodyData.append('live_url', formData.live_url || '');
+        const payload = {
+          title: formData.title,
+          description: formData.description,
+          technologies: Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies,
+          github_url: formData.github_url || '',
+          live_url: formData.live_url || ''
+        };
+
         if (selectedFile) {
           try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
             const compressedFile = await imageCompression(selectedFile, options);
-            const newName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".webp";
-            bodyData.append('image', compressedFile, newName);
+            payload.image = await getBase64(compressedFile);
           } catch (e) {
-            bodyData.append('image', selectedFile);
+            console.error("Compression error", e);
+            payload.image = await getBase64(selectedFile);
           }
         }
+        bodyData = JSON.stringify(payload);
       }
       else if (modalType === 'docs') {
         const calculatedType = 'image'; // Selalu jadikan gambar sebagai output utama
 
-        let finalUrl = formData.url; // Pertahankan URL gambar lama jika edit
-        let finalExternalLink = formData.external_link;
+        let finalUrl = formData.url || '';
+        let finalExternalLink = formData.external_link || '';
 
         if (selectedFile) {
-          finalUrl = ''; // Akan diisi multer
+          finalUrl = '';
         } else if (metaImage) {
           finalUrl = metaImage;
         }
 
-        bodyData = new FormData();
-        bodyData.append('title', formData.title);
-        bodyData.append('type', calculatedType);
-        bodyData.append('description', formData.description);
-        bodyData.append('url', finalUrl || '');
-        bodyData.append('doc_date', formData.doc_date || '');
-        bodyData.append('external_link', finalExternalLink || '');
+        const payload = {
+          title: formData.title,
+          type: calculatedType,
+          description: formData.description,
+          url: finalUrl,
+          doc_date: formData.doc_date || '',
+          external_link: finalExternalLink
+        };
+
         if (selectedFile) {
           try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
             const compressedFile = await imageCompression(selectedFile, options);
-            const newName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".webp";
-            bodyData.append('file', compressedFile, newName);
+            payload.file = await getBase64(compressedFile);
           } catch (e) {
-            bodyData.append('file', selectedFile);
+            console.error("Compression error", e);
+            payload.file = await getBase64(selectedFile);
           }
         }
+        bodyData = JSON.stringify(payload);
       }
       else {
         // Experiences uses JSON
         bodyData = JSON.stringify(formData);
-        finalHeaders['Content-Type'] = 'application/json';
       }
 
       const res = await fetch(url, { method, headers: finalHeaders, body: bodyData });
