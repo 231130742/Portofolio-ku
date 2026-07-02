@@ -15,15 +15,23 @@ const projectStorage = new CloudinaryStorage({
   params: {
     folder: 'portfolio_projects', // Folder di Cloudinary
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'heic'],
+    format: 'webp', // Otomatis ubah semua gambar jadi WebP
+    transformation: [{ width: 1200, crop: 'limit' }, { quality: 'auto:good' }] // Kompresi otomatis
   },
 });
 
 // Setup storage untuk Docs
 const docStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'portfolio_docs', // Folder di Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'heic', 'pdf'],
+  params: async (req, file) => {
+    // Jika file adalah PDF, biarkan sebagai PDF. Jika gambar, ubah jadi WebP.
+    const isPdf = file.originalname.toLowerCase().endsWith('.pdf') || file.mimetype === 'application/pdf';
+    return {
+      folder: 'portfolio_docs',
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'heic', 'pdf'],
+      format: isPdf ? 'pdf' : 'webp',
+      transformation: isPdf ? [] : [{ width: 1200, crop: 'limit' }, { quality: 'auto:good' }]
+    };
   },
 });
 
