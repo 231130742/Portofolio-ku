@@ -9,8 +9,8 @@ router.get('/', async (req, res) => {
         const [rows] = await db.query('SELECT * FROM docs ORDER BY doc_date DESC, created_at DESC');
         res.json(rows);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("GET Docs Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
@@ -67,8 +67,8 @@ router.post('/', async (req, res) => {
         );
         res.status(201).json({ id: result.insertId, message: 'Doc created successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("POST Doc Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
@@ -99,7 +99,7 @@ router.put('/:id', async (req, res) => {
         res.json({ message: 'Doc updated successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
@@ -110,7 +110,7 @@ router.delete('/:id', async (req, res) => {
         res.json({ message: 'Doc deleted successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
