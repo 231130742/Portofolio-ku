@@ -89,24 +89,28 @@ export function Projects() {
                       </p>
                       
                       <div className="flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                        <a 
-                          href={project.githubUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          aria-label={`Lihat kode sumber ${project.title} di GitHub`}
-                          className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
-                        >
-                          <FaGithub size={18} aria-hidden="true" /> Lihat Kode
-                        </a>
-                        <a 
-                          href={project.liveUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          aria-label={`Kunjungi situs live ${project.title}`}
-                          className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
-                        >
-                          <ExternalLink size={18} aria-hidden="true" /> Kunjungi Situs
-                        </a>
+                        {project.github_url && (
+                          <a 
+                            href={project.github_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label={`Lihat kode sumber ${project.title} di GitHub`}
+                            className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
+                          >
+                            <FaGithub size={18} aria-hidden="true" /> Lihat Kode
+                          </a>
+                        )}
+                        {project.live_url && (
+                          <a 
+                            href={project.live_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label={`Kunjungi situs live ${project.title}`}
+                            className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-light transition-colors"
+                          >
+                            <ExternalLink size={18} aria-hidden="true" /> Kunjungi Situs
+                          </a>
+                        )}
                       </div>
                     </div>
                   </CardContent>
