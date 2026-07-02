@@ -59,7 +59,10 @@ router.post('/', async (req, res) => {
             // Let frontend define type if it uploads file (could be 'image' or 'video')
         }
 
-        const finalDate = doc_date || new Date().toISOString().split('T')[0];
+        let finalDate = doc_date || new Date().toISOString().split('T')[0];
+        if (finalDate.includes('T')) {
+            finalDate = finalDate.split('T')[0];
+        }
 
         const [result] = await db.query(
             'INSERT INTO docs (title, type, url, description, doc_date, external_link) VALUES (?, ?, ?, ?, ?, ?)',
@@ -77,7 +80,10 @@ router.put('/:id', async (req, res) => {
     try {
         const { title, type, url: inputUrl, description, doc_date, external_link, file } = req.body;
         const { id } = req.params;
-        const finalDate = doc_date || new Date().toISOString().split('T')[0];
+        let finalDate = doc_date || new Date().toISOString().split('T')[0];
+        if (finalDate.includes('T')) {
+            finalDate = finalDate.split('T')[0];
+        }
 
         let fileUrl = null;
         if (file && file.startsWith('data:image')) {
