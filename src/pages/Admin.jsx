@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import imageCompression from 'browser-image-compression';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff, Menu } from 'lucide-react';
@@ -106,7 +107,15 @@ export function Admin() {
         bodyData.append('technologies', Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies);
         bodyData.append('github_url', formData.github_url || '');
         bodyData.append('live_url', formData.live_url || '');
-        if (selectedFile) bodyData.append('image', selectedFile);
+        if (selectedFile) {
+          try {
+            const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
+            const compressedFile = await imageCompression(selectedFile, options);
+            bodyData.append('image', compressedFile);
+          } catch (e) {
+            bodyData.append('image', selectedFile);
+          }
+        }
       }
       else if (modalType === 'docs') {
         const calculatedType = 'image'; // Selalu jadikan gambar sebagai output utama
@@ -127,7 +136,15 @@ export function Admin() {
         bodyData.append('url', finalUrl || '');
         bodyData.append('doc_date', formData.doc_date || '');
         bodyData.append('external_link', finalExternalLink || '');
-        if (selectedFile) bodyData.append('file', selectedFile);
+        if (selectedFile) {
+          try {
+            const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
+            const compressedFile = await imageCompression(selectedFile, options);
+            bodyData.append('file', compressedFile);
+          } catch (e) {
+            bodyData.append('file', selectedFile);
+          }
+        }
       }
       else {
         // Experiences uses JSON
@@ -228,7 +245,7 @@ export function Admin() {
             {projects.map(proj => (
               <tr key={proj.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="p-5 text-white font-medium flex items-center gap-4">
-                  {proj.image && <img src={`http://localhost:5000${proj.image}`} className="w-10 h-10 rounded-md object-cover" alt="" />}
+                  {proj.image && <img src={proj.image} className="w-10 h-10 rounded-md object-cover" alt="" />}
                   {proj.title}
                 </td>
                 <td className="p-5 text-zinc-400 text-sm">{Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies}</td>
@@ -306,7 +323,7 @@ export function Admin() {
               <div className="aspect-video bg-black"><iframe width="100%" height="100%" src={doc.url} title={doc.title} frameBorder="0" allowFullScreen></iframe></div>
             ) : (
               <div className="w-full aspect-video relative bg-black shrink-0 overflow-hidden">
-                <img src={doc.url && doc.url.startsWith('/uploads') ? `http://localhost:5000${doc.url}` : doc.url} alt={doc.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                <img src={doc.url} alt={doc.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
               </div>
             )}
             <div className="p-5 flex-grow">
@@ -376,7 +393,7 @@ export function Admin() {
 
   const renderModalContent = () => {
     if (modalType === 'projects') {
-      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (formData.image && formData.image.startsWith('/uploads') ? `http://localhost:5000${formData.image}` : formData.image);
+      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : formData.image;
       const techArray = typeof formData.technologies === 'string' ? formData.technologies.split(',').map(t => t.trim()).filter(Boolean) : (formData.technologies || []);
 
       return (
@@ -464,7 +481,7 @@ export function Admin() {
       );
     }
     if (modalType === 'docs') {
-      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (metaImage || (formData.url && formData.url.startsWith('/uploads') ? `http://localhost:5000${formData.url}` : formData.url));
+      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : (metaImage || formData.url);
       const hasAnyLink = formData.external_link;
 
       return (
@@ -501,7 +518,7 @@ export function Admin() {
             <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl flex flex-col pointer-events-none">
               <div className="w-full aspect-video relative bg-black shrink-0 overflow-hidden">
                 {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-zinc-600 bg-zinc-900">
                     <span className="text-sm font-medium flex gap-2 items-center">

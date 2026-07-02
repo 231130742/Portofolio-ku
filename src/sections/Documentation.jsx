@@ -65,7 +65,7 @@ export function Documentation() {
                   ></iframe>
                 ) : (
                   <img 
-                    src={doc.url && doc.url.startsWith('/uploads') ? `http://localhost:5000${doc.url}` : doc.url} 
+                    src={doc.url} 
                     alt={doc.title} 
                     className="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700 ease-out grayscale group-hover:grayscale-0"
                   />
