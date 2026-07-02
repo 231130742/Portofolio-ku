@@ -159,7 +159,9 @@ export function Admin() {
         refreshData();
         closeModal();
       } else {
-        alert('Gagal menyimpan data');
+        const errData = await res.json().catch(() => ({}));
+        console.error("Backend error:", errData);
+        alert(`Gagal menyimpan data: ${errData.error || errData.message || res.statusText}`);
       }
     } catch (err) {
       console.error(err);

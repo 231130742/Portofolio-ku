@@ -42,8 +42,8 @@ router.post('/', uploadProject.single('image'), async (req, res) => {
         );
         res.status(201).json({ id: result.insertId, message: 'Project created successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("POST Project Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
@@ -77,8 +77,8 @@ router.put('/:id', uploadProject.single('image'), async (req, res) => {
         }
         res.json({ message: 'Project updated successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("PUT Project Error:", error);
+        res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
     }
 });
 
