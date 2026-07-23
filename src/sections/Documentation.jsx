@@ -86,7 +86,7 @@ export function Documentation() {
                         : new Date(doc.doc_date || doc.created_at || new Date()).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
                   </div>
-                  {doc.is_lomba && doc.winner && (
+                  {!!doc.is_lomba && !!doc.winner && (
                     <div className="flex items-center gap-2 text-yellow-500 text-sm font-bold tracking-widest uppercase bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
                       🏆 <span>{doc.winner}</span>
                     </div>

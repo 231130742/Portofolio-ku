@@ -32,14 +32,14 @@ CREATE TABLE IF NOT EXISTS docs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     type VARCHAR(20) NOT NULL DEFAULT 'image', 
-    url VARCHAR(255),
+    url TEXT,
     description TEXT,
     doc_date DATE NULL,
     start_date DATE NULL,
     end_date DATE NULL,
     is_lomba BOOLEAN DEFAULT FALSE,
     winner VARCHAR(150) NULL,
-    external_link VARCHAR(255) NULL,
+    external_link TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
