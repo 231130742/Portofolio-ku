@@ -36,7 +36,7 @@ export function Admin() {
     } else {
       if (type === 'projects') setFormData({ title: '', technologies: '', github_url: '', live_url: '', description: '', image: null });
       if (type === 'experiences') setFormData({ role: item?.role || '', organization: item?.organization || '', start_year: item?.start_year || '', end_year: item?.end_year || '', period: item?.period || '', description: item?.description || '' });
-      if (type === 'docs') setFormData({ title: '', type: 'image', url: '', description: '', doc_date: item?.doc_date ? item.doc_date.split('T')[0] : '', external_link: item?.external_link || '' });
+      if (type === 'docs') setFormData({ title: '', type: 'image', url: '', description: '', doc_date: '', start_date: '', end_date: '', is_lomba: false, winner: '', external_link: '' });
     }
 
     setIsModalOpen(true);
@@ -50,8 +50,8 @@ export function Admin() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleFileChange = (e) => {
@@ -146,7 +146,11 @@ export function Admin() {
           type: calculatedType,
           description: formData.description,
           url: finalUrl,
-          doc_date: formData.doc_date || '',
+          doc_date: formData.start_date || '', // keep backward compatibility
+          start_date: formData.start_date || '',
+          end_date: formData.end_date || '',
+          is_lomba: formData.is_lomba || false,
+          winner: formData.winner || '',
           external_link: finalExternalLink
         };
 
@@ -506,10 +510,28 @@ export function Admin() {
           <div className="space-y-5">
             <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Dokumentasi <span className="text-red-500">*</span></label><input required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" /></div>
 
-            <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Tanggal <span className="text-xs text-zinc-500">(Kosongkan untuk hari ini)</span></label>
-              <input type="date" name="doc_date" value={formData.doc_date ? formData.doc_date.split('T')[0] : ''} onChange={handleInputChange} style={{ colorScheme: 'dark' }} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-zinc-400 mb-1.5 flex-grow">Tanggal Mulai <span className="text-xs text-zinc-500">(Kosongkan untuk hari ini)</span></label>
+                <input type="date" name="start_date" value={formData.start_date ? formData.start_date.split('T')[0] : ''} onChange={handleInputChange} style={{ colorScheme: 'dark' }} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" />
+              </div>
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-zinc-400 mb-1.5 flex-grow">Tanggal Selesai <span className="text-xs text-zinc-500">(Opsional)</span></label>
+                <input type="date" name="end_date" value={formData.end_date ? formData.end_date.split('T')[0] : ''} onChange={handleInputChange} style={{ colorScheme: 'dark' }} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors mt-auto" />
+              </div>
             </div>
+
+            <div className="flex items-center gap-3">
+              <input type="checkbox" name="is_lomba" checked={formData.is_lomba || false} onChange={handleInputChange} className="w-5 h-5 accent-purple-500 bg-black/50 border-white/10 rounded cursor-pointer" id="is_lomba" />
+              <label htmlFor="is_lomba" className="text-sm font-medium text-zinc-300 cursor-pointer">Dokumentasi ini adalah Lomba / Kompetisi</label>
+            </div>
+
+            {formData.is_lomba && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Pemenang / Juara <span className="text-xs text-zinc-500">(Cth: Juara 1)</span></label>
+                <input type="text" name="winner" value={formData.winner || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" placeholder="Juara 1 Lomba Web Design..." />
+              </motion.div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5">Media Utama (Upload File) <span className="text-xs text-zinc-500">(Prioritas JPG/PNG)</span></label>
@@ -547,8 +569,17 @@ export function Admin() {
               <div className="p-5 flex-grow">
                 <div className="flex items-center gap-2 text-brand-blue mb-3 text-[10px] font-bold tracking-widest uppercase">
                   <Calendar size={12} />
-                  <span>{formData.doc_date ? new Date(formData.doc_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Tanggal Hari Ini'}</span>
+                  <span>
+                    {formData.start_date 
+                      ? `${new Date(formData.start_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}${formData.end_date ? ` - ${new Date(formData.end_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}` 
+                      : 'Tanggal Hari Ini'}
+                  </span>
                 </div>
+                {formData.is_lomba && formData.winner && (
+                  <div className="flex items-center gap-2 text-yellow-500 mb-3 text-[10px] font-bold tracking-widest uppercase">
+                    🏆 <span>{formData.winner}</span>
+                  </div>
+                )}
                 <h3 className="font-bold text-base text-white mb-2 leading-tight">{formData.title || 'Judul Dokumentasi'}</h3>
                 <p className="text-xs text-zinc-400">
                   {formData.description ? (formData.description.length > 430 ? formData.description.substring(0, 430) + '...' : formData.description) : 'Deskripsi dokumentasi akan tampil di sini...'}

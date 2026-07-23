@@ -35,6 +35,10 @@ CREATE TABLE IF NOT EXISTS docs (
     url VARCHAR(255),
     description TEXT,
     doc_date DATE NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
+    is_lomba BOOLEAN DEFAULT FALSE,
+    winner VARCHAR(150) NULL,
     external_link VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -50,7 +50,7 @@ router.post('/meta', async (req, res) => {
 // Create doc
 router.post('/', async (req, res) => {
     try {
-        const { title, type, url: inputUrl, description, doc_date, external_link, file } = req.body;
+        const { title, type, url: inputUrl, description, doc_date, start_date, end_date, is_lomba, winner, external_link, file } = req.body;
         let finalUrl = inputUrl || null;
 
         if (file && file.startsWith('data:image')) {
@@ -59,14 +59,16 @@ router.post('/', async (req, res) => {
             // Let frontend define type if it uploads file (could be 'image' or 'video')
         }
 
-        let finalDate = doc_date || new Date().toISOString().split('T')[0];
-        if (finalDate.includes('T')) {
-            finalDate = finalDate.split('T')[0];
-        }
+        let finalDocDate = doc_date || new Date().toISOString().split('T')[0];
+        if (finalDocDate.includes('T')) finalDocDate = finalDocDate.split('T')[0];
+
+        const finalStartDate = start_date ? (start_date.includes('T') ? start_date.split('T')[0] : start_date) : null;
+        const finalEndDate = end_date ? (end_date.includes('T') ? end_date.split('T')[0] : end_date) : null;
+        const finalIsLomba = is_lomba === true || is_lomba === 'true' || is_lomba === 1;
 
         const [result] = await db.query(
-            'INSERT INTO docs (title, type, url, description, doc_date, external_link) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, type, finalUrl, description, finalDate, external_link || null]
+            'INSERT INTO docs (title, type, url, description, doc_date, start_date, end_date, is_lomba, winner, external_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [title, type, finalUrl, description, finalDocDate, finalStartDate, finalEndDate, finalIsLomba, winner || null, external_link || null]
         );
         res.status(201).json({ id: result.insertId, message: 'Doc created successfully' });
     } catch (error) {
@@ -78,12 +80,14 @@ router.post('/', async (req, res) => {
 // Update doc
 router.put('/:id', async (req, res) => {
     try {
-        const { title, type, url: inputUrl, description, doc_date, external_link, file } = req.body;
+        const { title, type, url: inputUrl, description, doc_date, start_date, end_date, is_lomba, winner, external_link, file } = req.body;
         const { id } = req.params;
-        let finalDate = doc_date || new Date().toISOString().split('T')[0];
-        if (finalDate.includes('T')) {
-            finalDate = finalDate.split('T')[0];
-        }
+        let finalDocDate = doc_date || new Date().toISOString().split('T')[0];
+        if (finalDocDate.includes('T')) finalDocDate = finalDocDate.split('T')[0];
+
+        const finalStartDate = start_date ? (start_date.includes('T') ? start_date.split('T')[0] : start_date) : null;
+        const finalEndDate = end_date ? (end_date.includes('T') ? end_date.split('T')[0] : end_date) : null;
+        const finalIsLomba = is_lomba === true || is_lomba === 'true' || is_lomba === 1;
 
         let fileUrl = null;
         if (file && file.startsWith('data:image')) {
@@ -91,17 +95,10 @@ router.put('/:id', async (req, res) => {
             fileUrl = uploadRes.secure_url;
         }
 
-        if (fileUrl) {
-            await db.query(
-                'UPDATE docs SET title=?, type=?, url=?, description=?, doc_date=?, external_link=? WHERE id=?',
-                [title, type, fileUrl, description, finalDate, external_link || null, id]
-            );
-        } else {
-            await db.query(
-                'UPDATE docs SET title=?, type=?, url=?, description=?, doc_date=?, external_link=? WHERE id=?',
-                [title, type, inputUrl || null, description, finalDate, external_link || null, id]
-            );
-        }
+        const query = 'UPDATE docs SET title=?, type=?, url=?, description=?, doc_date=?, start_date=?, end_date=?, is_lomba=?, winner=?, external_link=? WHERE id=?';
+        const params = [title, type, fileUrl || inputUrl || null, description, finalDocDate, finalStartDate, finalEndDate, finalIsLomba, winner || null, external_link || null, id];
+
+        await db.query(query, params);
         res.json({ message: 'Doc updated successfully' });
     } catch (error) {
         console.error(error);

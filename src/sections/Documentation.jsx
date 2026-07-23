@@ -77,9 +77,20 @@ export function Documentation() {
 
               {/* Content Section */}
               <div className="w-full md:w-3/5 flex flex-col pt-2">
-                <div className="flex items-center gap-2 text-brand-blue mb-4 text-sm font-bold tracking-widest uppercase">
-                  <Calendar size={16} />
-                  <span>{new Date(doc.doc_date || doc.created_at || new Date()).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <div className="flex items-center gap-2 text-brand-blue text-sm font-bold tracking-widest uppercase">
+                    <Calendar size={16} />
+                    <span>
+                      {doc.start_date 
+                        ? `${new Date(doc.start_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}${doc.end_date ? ` - ${new Date(doc.end_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}`
+                        : new Date(doc.doc_date || doc.created_at || new Date()).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                  </div>
+                  {doc.is_lomba && doc.winner && (
+                    <div className="flex items-center gap-2 text-yellow-500 text-sm font-bold tracking-widest uppercase bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
+                      🏆 <span>{doc.winner}</span>
+                    </div>
+                  )}
                 </div>
                 
                 <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 group-hover:text-brand-light transition-colors leading-tight">
