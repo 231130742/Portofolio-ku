@@ -522,11 +522,11 @@ export function Admin() {
             </div>
 
             <div className="flex items-center gap-3">
-              <input type="checkbox" name="is_lomba" checked={formData.is_lomba || false} onChange={handleInputChange} className="w-5 h-5 accent-purple-500 bg-black/50 border-white/10 rounded cursor-pointer" id="is_lomba" />
+              <input type="checkbox" name="is_lomba" checked={!!formData.is_lomba} onChange={handleInputChange} className="w-5 h-5 accent-purple-500 bg-black/50 border-white/10 rounded cursor-pointer" id="is_lomba" />
               <label htmlFor="is_lomba" className="text-sm font-medium text-zinc-300 cursor-pointer">Dokumentasi ini adalah Lomba / Kompetisi</label>
             </div>
 
-            {formData.is_lomba && (
+            {!!formData.is_lomba && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
                 <label className="block text-sm font-medium text-zinc-400 mb-1.5">Pemenang / Juara <span className="text-xs text-zinc-500">(Cth: Juara 1)</span></label>
                 <input type="text" name="winner" value={formData.winner || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-purple-500 focus:outline-none transition-colors" placeholder="Juara 1 Lomba Web Design..." />
@@ -575,7 +575,7 @@ export function Admin() {
                       : 'Tanggal Hari Ini'}
                   </span>
                 </div>
-                {formData.is_lomba && formData.winner && (
+                {!!formData.is_lomba && !!formData.winner && (
                   <div className="flex items-center gap-2 text-yellow-500 mb-3 text-[10px] font-bold tracking-widest uppercase">
                     🏆 <span>{formData.winner}</span>
                   </div>
