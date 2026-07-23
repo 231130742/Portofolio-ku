@@ -29,7 +29,7 @@ export function Documentation() {
               <span className="text-zinc-500">Liputan.</span>
             </h2>
           </motion.div>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -64,9 +64,9 @@ export function Documentation() {
                     className="absolute inset-0 w-full h-full"
                   ></iframe>
                 ) : (
-                  <img 
-                    src={doc.url} 
-                    alt={doc.title} 
+                  <img
+                    src={doc.url}
+                    alt={doc.title}
                     className="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700 ease-out grayscale group-hover:grayscale-0"
                   />
                 )}
@@ -81,7 +81,7 @@ export function Documentation() {
                   <div className="flex items-center gap-2 text-brand-blue text-sm font-bold tracking-widest uppercase">
                     <Calendar size={16} />
                     <span>
-                      {doc.start_date 
+                      {doc.start_date
                         ? `${new Date(doc.start_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}${doc.end_date ? ` - ${new Date(doc.end_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}`
                         : new Date(doc.doc_date || doc.created_at || new Date()).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
@@ -92,11 +92,11 @@ export function Documentation() {
                     </div>
                   )}
                 </div>
-                
+
                 <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 group-hover:text-brand-light transition-colors leading-tight">
                   {doc.title}
                 </h3>
-                
+
                 <p className="text-zinc-400 text-lg leading-relaxed font-light mb-4 max-w-2xl whitespace-pre-wrap">
                   {doc.description ? (doc.description.length > 430 && !expandedDocs[doc.id] ? doc.description.substring(0, 430) + '...' : doc.description) : "Tidak ada deskripsi tersedia untuk dokumentasi ini."}
                 </p>
