@@ -18,6 +18,7 @@ export function Navbar() {
     { name: 'Tentang', href: '#about' },
     { name: 'Proyek', href: '#projects' },
     { name: 'Pengalaman', href: '#experience' },
+    { name: 'Sertifikat', href: '#certificates' },
     { name: 'Dokumentasi', href: '#documentation' },
   ];
 

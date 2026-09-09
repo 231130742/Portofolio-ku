@@ -167,6 +167,29 @@ export function Admin() {
         }
         bodyData = JSON.stringify(payload);
       }
+      else if (modalType === 'certificates') {
+        const payload = {
+          title: formData.title,
+          category: formData.category,
+          issuer: formData.issuer,
+          issue_date: formData.issue_date || '',
+          credential_id: formData.credential_id || '',
+          credential_url: formData.credential_url || '',
+          image_url: formData.image_url || ''
+        };
+
+        if (selectedFile) {
+          try {
+            const options = { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, fileType: 'image/webp' };
+            const compressedFile = await imageCompression(selectedFile, options);
+            payload.file = await getBase64(compressedFile);
+          } catch (e) {
+            console.error("Compression error", e);
+            payload.file = await getBase64(selectedFile);
+          }
+        }
+        bodyData = JSON.stringify(payload);
+      }
       else {
         // Experiences uses JSON
         bodyData = JSON.stringify(formData);
