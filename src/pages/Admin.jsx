@@ -691,7 +691,7 @@ export function Admin() {
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative">
           <div className="space-y-5">
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Sertifikat <span className="text-red-500">*</span></label><input required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Sertifikat <span className="text-red-500">*</span></label><input name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
 
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5">Kategori <span className="text-red-500">*</span></label>
@@ -703,7 +703,7 @@ export function Admin() {
               </select>
             </div>
 
-            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Penerbit (Issuer) <span className="text-red-500">*</span></label><input required name="issuer" value={formData.issuer || ''} onChange={handleInputChange} placeholder="Cth: Dicoding, Google, dll" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Penerbit (Issuer) <span className="text-red-500">*</span></label><input name="issuer" value={formData.issuer || ''} onChange={handleInputChange} placeholder="Cth: Dicoding, Google, dll" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
 
             <div className="flex flex-col">
               <label className="block text-sm font-medium text-zinc-400 mb-1.5 flex-grow">Tanggal Terbit</label>
@@ -718,7 +718,7 @@ export function Admin() {
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-1.5">Upload File Sertifikat <span className="text-red-500">*</span></label>
               <div className="relative border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-yellow-500/50 transition-colors bg-black/30">
-                <input type="file" required={!isExternal} accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 <UploadCloud className="mx-auto text-zinc-500 mb-2" size={32} />
                 <p className="text-sm text-zinc-400">{selectedFile ? selectedFile.name : (formData.image_url ? 'File sudah ada, klik untuk mengganti' : 'Klik atau drag file gambar ke sini')}</p>
               </div>
@@ -744,9 +744,9 @@ export function Admin() {
                 {formData.credential_id && <div className="flex items-center gap-1.5">ID: {formData.credential_id}</div>}
               </div>
 
-              <div className="w-full aspect-video relative bg-black rounded-lg overflow-hidden border border-white/10 mb-4 flex items-center justify-center">
+              <div className="w-full bg-black/30 rounded-lg overflow-hidden border border-white/10 mb-4 flex items-center justify-center p-4">
                 {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="w-full h-full object-contain" onError={(e) => e.target.style.display='none'} />
+                  <img src={previewImage} alt="Preview" className="max-w-full max-h-80 object-contain" onError={(e) => e.target.style.display='none'} />
                 ) : (
                   <div className="text-zinc-600 text-sm font-medium">Preview Gambar</div>
                 )}
