@@ -59,22 +59,22 @@ export function Certificates() {
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
             {filteredCertificates.map(cert => (
-              <motion.div
+              <motion.div whileHover={{ scale: 1.03 }}
                 layout
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
                 key={cert.id}
-                className="group bg-zinc-900/50 backdrop-blur-xl border border-white/5 hover:border-yellow-500/30 rounded-3xl overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] transition-all flex flex-col"
+                className="group bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 bg-opacity-80 backdrop-blur-xl border border-white/10 hover:border-yellow-500/30 rounded-3xl overflow-hidden shadow-2xl hover:shadow-[0_0_40px_rgba(234,179,8,0.25)] transition-all flex flex-col"
               >
                 {/* Image Section */}
-                <div className="w-full aspect-[4/3] bg-black relative overflow-hidden flex items-center justify-center p-4">
+                <div className="w-full aspect-auto bg-black relative overflow-hidden flex items-center justify-center p-4">
                   {cert.image_url ? (
                     <img 
                       src={cert.image_url} 
                       alt={cert.title} 
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" 
+                      className="max-w-full max-h-80 object-contain group-hover:scale-105 transition-transform duration-500" 
                       loading="lazy"
                     />
                   ) : (
@@ -89,7 +89,7 @@ export function Certificates() {
                 {/* Content Section */}
                 <div className="p-6 flex-grow flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 rounded-full text-xs font-bold tracking-widest uppercase">
+                    <span className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-pink-500 border border-yellow-500/30 text-white rounded-full text-xs font-bold tracking-widest uppercase">
                       {cert.category}
                     </span>
                   </div>
