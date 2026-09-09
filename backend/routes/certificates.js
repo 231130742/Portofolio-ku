@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const cloudinary = require('../config/cloudinary');
-const { verifyToken } = require('./auth');
 
 // Get all certificates
 router.get('/', async (req, res) => {
@@ -15,7 +14,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create certificate
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { title, category, issuer, issue_date, credential_id, credential_url, file } = req.body;
         let imageUrl = null;
@@ -40,7 +39,7 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Update certificate
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { title, category, issuer, issue_date, credential_id, credential_url, file } = req.body;
@@ -67,7 +66,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Delete certificate
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         await db.query('DELETE FROM certificates WHERE id = ?', [id]);
