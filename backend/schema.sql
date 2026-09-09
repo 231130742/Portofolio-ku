@@ -52,6 +52,18 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS certificates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    category VARCHAR(50) NOT NULL DEFAULT 'Lainnya',
+    issuer VARCHAR(100) NOT NULL,
+    issue_date DATE NULL,
+    credential_id VARCHAR(100) NULL,
+    credential_url TEXT NULL,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert default admin user (password is 'admin123' hashed with bcrypt)
 -- You can change this later from the application or DB
 INSERT IGNORE INTO users (username, password) 

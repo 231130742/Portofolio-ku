@@ -20,12 +20,14 @@ const projectRoutes = require('./routes/projects');
 const experienceRoutes = require('./routes/experiences');
 const docRoutes = require('./routes/docs');
 const messageRoutes = require('./routes/messages');
+const certificateRoutes = require('./routes/certificates');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/docs', docRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 // Endpoint Ping untuk mencegah Aiven dari Sleep (dipanggil oleh cron-job.org)
 const db = require('./config/db');

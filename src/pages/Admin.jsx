@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff, Menu } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Plus, Trash2, Edit2, X, ExternalLink, LogOut, UploadCloud, Calendar, ArrowRight, MessageSquare, CheckCircle, EyeOff, Menu, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Admin() {
-  const { projects, experiences, docs, messages, refreshData } = usePortfolio();
+  const { projects, experiences, docs, certificates, messages, refreshData } = usePortfolio();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -37,6 +37,7 @@ export function Admin() {
       if (type === 'projects') setFormData({ title: '', technologies: '', github_url: '', live_url: '', description: '', image: null });
       if (type === 'experiences') setFormData({ role: item?.role || '', organization: item?.organization || '', start_year: item?.start_year || '', end_year: item?.end_year || '', period: item?.period || '', description: item?.description || '' });
       if (type === 'docs') setFormData({ title: '', type: 'image', url: '', description: '', doc_date: '', start_date: '', end_date: '', is_lomba: false, winner: '', external_link: '' });
+      if (type === 'certificates') setFormData({ title: '', category: 'Course & Pelatihan', issuer: '', issue_date: '', credential_id: '', credential_url: '', image_url: '' });
     }
 
     setIsModalOpen(true);
@@ -241,6 +242,13 @@ export function Admin() {
           <p className="text-4xl font-black text-white">{docs.length}</p>
         </div>
       </div>
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex items-center gap-6 shadow-xl hover:bg-zinc-900 transition-colors">
+        <div className="p-4 bg-yellow-500/20 text-yellow-500 rounded-xl"><Award size={32} /></div>
+        <div>
+          <h3 className="text-zinc-400 text-sm font-medium uppercase tracking-wider mb-1">Sertifikat</h3>
+          <p className="text-4xl font-black text-white">{certificates.length}</p>
+        </div>
+      </div>
     </motion.div>
   );
 
@@ -406,6 +414,56 @@ export function Admin() {
               </tr>
             ))}
             {(!messages || messages.length === 0) && <tr><td colSpan="4" className="p-8 text-center text-zinc-500">Belum ada pesan.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  );
+
+  const renderCertificates = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Manajemen Sertifikat</h2>
+        <button onClick={() => openModal('certificates')} className="bg-white text-black px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-zinc-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.2)] w-full sm:w-auto justify-center">
+          <Plus size={18} /> Tambah Sertifikat
+        </button>
+      </div>
+
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-x-auto shadow-2xl">
+        <table className="w-full min-w-[700px] text-left border-collapse">
+          <thead>
+            <tr className="bg-zinc-950/80 border-b border-white/5 text-zinc-400 text-sm uppercase tracking-wider">
+              <th className="p-5 font-semibold">Kategori</th>
+              <th className="p-5 font-semibold">Sertifikat & Penerbit</th>
+              <th className="p-5 font-semibold text-center">Tgl Terbit</th>
+              <th className="p-5 font-semibold text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {certificates.map(cert => (
+              <tr key={cert.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                <td className="p-5">
+                  <span className="px-3 py-1 bg-yellow-500/10 text-yellow-500 rounded-full text-xs font-bold whitespace-nowrap">{cert.category}</span>
+                </td>
+                <td className="p-5">
+                  <div className="font-bold text-white max-w-[250px] truncate">{cert.title}</div>
+                  <div className="text-xs text-brand-blue font-medium mt-1">{cert.issuer}</div>
+                </td>
+                <td className="p-5 text-center text-zinc-400 text-sm whitespace-nowrap">
+                  {cert.issue_date ? new Date(cert.issue_date).toLocaleDateString('id-ID') : '-'}
+                </td>
+                <td className="p-5 text-right flex justify-end gap-3">
+                  {cert.credential_url && (
+                    <a href={cert.credential_url} target="_blank" rel="noreferrer" className="p-2.5 text-zinc-400 hover:text-white bg-white/5 rounded-lg transition-colors" title="Lihat Kredensial">
+                      <ExternalLink size={16} />
+                    </a>
+                  )}
+                  <button onClick={() => openModal('certificates', cert)} className="p-2.5 text-zinc-400 hover:text-white bg-white/5 rounded-lg transition-colors"><Edit2 size={16} /></button>
+                  <button onClick={() => handleDelete('certificates', cert.id)} className="p-2.5 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+            {certificates.length === 0 && <tr><td colSpan="4" className="p-8 text-center text-zinc-500">Belum ada sertifikat.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -601,6 +659,86 @@ export function Admin() {
         </div>
       );
     }
+    
+    if (modalType === 'certificates') {
+      const previewImage = selectedFile ? URL.createObjectURL(selectedFile) : formData.image_url;
+      const isExternal = formData.image_url && !formData.image_url.startsWith('data:');
+      const hasAnyLink = formData.credential_url || false;
+
+      return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative">
+          <div className="space-y-5">
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Judul Sertifikat <span className="text-red-500">*</span></label><input required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Kategori <span className="text-red-500">*</span></label>
+              <select name="category" value={formData.category || 'Lainnya'} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors appearance-none">
+                <option value="Course & Pelatihan">Course & Pelatihan</option>
+                <option value="Kejuaraan">Kejuaraan / Lomba</option>
+                <option value="Pengabdian">Pengabdian</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Penerbit (Issuer) <span className="text-red-500">*</span></label><input required name="issuer" value={formData.issuer || ''} onChange={handleInputChange} placeholder="Cth: Dicoding, Google, dll" className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5 flex-grow">Tanggal Terbit</label>
+              <input type="date" name="issue_date" value={formData.issue_date ? formData.issue_date.split('T')[0] : ''} onChange={handleInputChange} style={{ colorScheme: 'dark' }} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Credential ID</label><input name="credential_id" value={formData.credential_id || ''} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-1.5">Link Kredensial Valid</label><input type="url" name="credential_url" value={formData.credential_url || ''} onChange={handleInputChange} placeholder="https://..." className="w-full bg-black/50 border border-white/10 rounded-xl p-3.5 text-white focus:border-yellow-500 focus:outline-none transition-colors" /></div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Upload File Sertifikat <span className="text-red-500">*</span></label>
+              <div className="relative border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-yellow-500/50 transition-colors bg-black/30">
+                <input type="file" required={!isExternal} accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <UploadCloud className="mx-auto text-zinc-500 mb-2" size={32} />
+                <p className="text-sm text-zinc-400">{selectedFile ? selectedFile.name : (formData.image_url ? 'File sudah ada, klik untuk mengganti' : 'Klik atau drag file gambar ke sini')}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-zinc-950/50 border border-white/5 rounded-2xl p-6 sticky top-0">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Live Preview</h3>
+            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl p-5 border-l-4 border-l-yellow-500 pointer-events-none">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-bold text-lg text-white mb-1 leading-tight">{formData.title || 'Judul Sertifikat'}</h3>
+                  <p className="text-brand-blue font-medium text-sm">{formData.issuer || 'Nama Penerbit'}</p>
+                </div>
+                <div className="p-2 bg-yellow-500/10 text-yellow-500 rounded-lg"><Award size={20} /></div>
+              </div>
+              
+              <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-zinc-400 mb-4 font-medium uppercase tracking-wider">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={14} /> 
+                  {formData.issue_date ? new Date(formData.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }) : 'Bulan Tahun'}
+                </div>
+                {formData.credential_id && <div className="flex items-center gap-1.5">ID: {formData.credential_id}</div>}
+              </div>
+
+              <div className="w-full aspect-video relative bg-black rounded-lg overflow-hidden border border-white/10 mb-4 flex items-center justify-center">
+                {previewImage ? (
+                  <img src={previewImage} alt="Preview" className="w-full h-full object-contain" onError={(e) => e.target.style.display='none'} />
+                ) : (
+                  <div className="text-zinc-600 text-sm font-medium">Preview Gambar</div>
+                )}
+              </div>
+
+              {hasAnyLink && (
+                <div className="inline-flex items-center gap-2 text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-lg">
+                  Tampilkan Kredensial <ExternalLink size={14} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
     return null;
   };
 
@@ -654,6 +792,9 @@ export function Admin() {
           <button onClick={() => { setActiveTab('docs'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <FileText size={18} /> Dokumentasi
           </button>
+          <button onClick={() => { setActiveTab('certificates'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'certificates' ? 'bg-yellow-600 text-white shadow-[0_0_20px_rgba(202,138,4,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
+            <Award size={18} /> Sertifikat
+          </button>
           <button onClick={() => { setActiveTab('messages'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'messages' ? 'bg-orange-600 text-white shadow-[0_0_20px_rgba(234,88,12,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
             <MessageSquare size={18} /> Pesan & Komentar
           </button>
@@ -674,6 +815,7 @@ export function Admin() {
         {activeTab === 'projects' && renderProjects()}
         {activeTab === 'experiences' && renderExperiences()}
         {activeTab === 'docs' && renderDocs()}
+        {activeTab === 'certificates' && renderCertificates()}
         {activeTab === 'messages' && renderMessages()}
       </main>
 

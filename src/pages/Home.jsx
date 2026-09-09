@@ -4,6 +4,7 @@ import { About } from '../sections/About';
 import { Skills } from '../sections/Skills';
 import { Projects } from '../sections/Projects';
 import { Experience } from '../sections/Experience';
+import { Certificates } from '../sections/Certificates';
 import { Documentation } from '../sections/Documentation';
 import { Contact } from '../sections/Contact';
 
@@ -15,6 +16,7 @@ export function Home() {
       <Skills />
       <Projects />
       <Experience />
+      <Certificates />
       <Documentation />
       <Contact />
     </>
