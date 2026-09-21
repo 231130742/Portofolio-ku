@@ -727,37 +727,68 @@ export function Admin() {
 
           <div className="bg-zinc-950/50 border border-white/5 rounded-2xl p-6 sticky top-0">
             <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">Live Preview</h3>
-            <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl p-5 border-l-4 border-l-yellow-500 pointer-events-none">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-bold text-lg text-white mb-1 leading-tight">{formData.title || 'Judul Sertifikat'}</h3>
-                  <p className="text-brand-blue font-medium text-sm">{formData.issuer || 'Nama Penerbit'}</p>
-                </div>
-                <div className="p-2 bg-yellow-500/10 text-yellow-500 rounded-lg"><Award size={20} /></div>
-              </div>
-              
-              <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-zinc-400 mb-4 font-medium uppercase tracking-wider">
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={14} /> 
-                  {formData.issue_date ? new Date(formData.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }) : 'Bulan Tahun'}
-                </div>
-                {formData.credential_id && <div className="flex items-center gap-1.5">ID: {formData.credential_id}</div>}
-              </div>
-
-              <div className="w-full bg-black/30 rounded-lg overflow-hidden border border-white/10 mb-4 flex items-center justify-center p-4">
+            
+            <div className="group bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-xl flex flex-col pointer-events-none">
+              {/* Image Section */}
+              <div className="w-full bg-black/50 relative overflow-hidden flex items-center justify-center p-6 min-h-[240px]">
                 {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="max-w-full max-h-80 object-contain" onError={(e) => e.target.style.display='none'} />
+                  <img 
+                    src={previewImage} 
+                    alt="Preview" 
+                    className="max-w-full max-h-56 object-contain drop-shadow-2xl" 
+                    onError={(e) => e.target.style.display='none'}
+                  />
                 ) : (
-                  <div className="text-zinc-600 text-sm font-medium">Preview Gambar</div>
+                  <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-xl min-h-[200px]">
+                    <Award size={48} className="text-zinc-600" />
+                  </div>
                 )}
               </div>
 
-              {hasAnyLink && (
-                <div className="inline-flex items-center gap-2 text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-lg">
-                  Tampilkan Kredensial <ExternalLink size={14} />
+              {/* Content Section */}
+              <div className="p-6 flex-grow flex flex-col">
+                <div className="flex justify-between items-start mb-4">
+                  <span className="px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-[10px] font-bold tracking-widest uppercase">
+                    {formData.category || 'Lainnya'}
+                  </span>
                 </div>
-              )}
+                
+                <h3 className="text-xl font-bold text-white mb-2 leading-tight">
+                  {formData.title || 'Judul Sertifikat'}
+                </h3>
+                <p className="text-zinc-400 font-medium text-sm mb-6">
+                  {formData.issuer || 'Nama Penerbit'}
+                </p>
+
+                <div className="mt-auto space-y-3 p-4 bg-black/20 rounded-2xl border border-white/5">
+                  {formData.issue_date && (
+                    <div className="flex items-center gap-3 text-xs text-zinc-300 font-medium">
+                      <div className="p-1.5 bg-white/5 rounded-md text-zinc-400"><Calendar size={14} /></div>
+                      <span>Terbit: {new Date(formData.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
+                    </div>
+                  )}
+                  {formData.credential_id && (
+                    <div className="flex items-center gap-3 text-xs text-zinc-300 font-medium">
+                      <div className="p-1.5 bg-white/5 rounded-md text-zinc-400"><Award size={14} /></div>
+                      <span className="truncate">ID: {formData.credential_id}</span>
+                    </div>
+                  )}
+                  {!formData.issue_date && !formData.credential_id && (
+                    <div className="text-xs text-zinc-500 text-center">Detail Kredensial (Tanggal & ID)</div>
+                  )}
+                </div>
+
+                {hasAnyLink && (
+                  <div className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-white/5 text-white text-sm font-bold rounded-xl">
+                    Verifikasi Kredensial <ExternalLink size={16} />
+                  </div>
+                )}
+              </div>
             </div>
+            
+            <p className="text-xs text-yellow-500 mt-4 bg-yellow-500/10 p-3 rounded-lg leading-relaxed text-center font-medium">
+              * Gambar akan menyesuaikan secara proporsional (object-contain) tanpa terpotong untuk ukuran 16:9 maupun 9:16.
+            </p>
           </div>
         </div>
       );

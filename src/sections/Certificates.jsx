@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Award, Calendar, ExternalLink } from 'lucide-react';
+import { Award, Calendar, ExternalLink, X, ZoomIn } from 'lucide-react';
 
 export function Certificates() {
   const { certificates } = usePortfolio();
   const [activeCategory, setActiveCategory] = useState('Semua');
+  const [selectedImage, setSelectedImage] = useState(null);
 
   if (!certificates || certificates.length === 0) return null;
 
@@ -56,62 +57,70 @@ export function Certificates() {
         )}
 
         {/* Certificates Grid */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence>
             {filteredCertificates.map(cert => (
-              <motion.div whileHover={{ scale: 1.03 }}
+              <motion.div whileHover={{ y: -5 }}
                 layout
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
                 key={cert.id}
-                className="group bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 bg-opacity-80 backdrop-blur-xl border border-white/10 hover:border-yellow-500/30 rounded-3xl overflow-hidden shadow-2xl hover:shadow-[0_0_40px_rgba(234,179,8,0.25)] transition-all flex flex-col"
+                className="group bg-zinc-900/50 backdrop-blur-xl border border-white/10 hover:border-yellow-500/50 rounded-3xl overflow-hidden shadow-xl transition-all flex flex-col"
               >
                 {/* Image Section */}
-                <div className="w-full aspect-auto bg-black relative overflow-hidden flex items-center justify-center p-4">
+                <div 
+                  className="w-full bg-black/50 relative overflow-hidden flex items-center justify-center p-6 cursor-pointer group/img min-h-[240px]"
+                  onClick={() => cert.image_url && setSelectedImage(cert.image_url)}
+                >
                   {cert.image_url ? (
-                    <img 
-                      src={cert.image_url} 
-                      alt={cert.title} 
-                      className="max-w-full max-h-80 object-contain group-hover:scale-105 transition-transform duration-500" 
-                      loading="lazy"
-                    />
+                    <>
+                      <img 
+                        src={cert.image_url} 
+                        alt={cert.title} 
+                        className="max-w-full max-h-56 object-contain group-hover/img:scale-105 transition-transform duration-500 drop-shadow-2xl" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
+                        <div className="bg-yellow-500 text-black p-3 rounded-full transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.5)]">
+                          <ZoomIn size={24} />
+                        </div>
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-xl">
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-xl min-h-[200px]">
                       <Award size={48} className="text-zinc-600" />
                     </div>
                   )}
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 </div>
 
                 {/* Content Section */}
                 <div className="p-6 flex-grow flex flex-col">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-pink-500 border border-yellow-500/30 text-white rounded-full text-xs font-bold tracking-widest uppercase">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-[10px] font-bold tracking-widest uppercase">
                       {cert.category}
                     </span>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-yellow-500 transition-colors">
+                  <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-yellow-400 transition-colors">
                     {cert.title}
                   </h3>
-                  <p className="text-brand-blue font-medium text-sm mb-4">
+                  <p className="text-zinc-400 font-medium text-sm mb-6">
                     {cert.issuer}
                   </p>
 
-                  <div className="mt-auto space-y-2 text-sm text-zinc-400">
+                  <div className="mt-auto space-y-3 p-4 bg-black/20 rounded-2xl border border-white/5">
                     {cert.issue_date && (
-                      <div className="flex items-center gap-2">
-                        <Calendar size={14} className="text-zinc-500" />
-                        <span>Diterbitkan: {new Date(cert.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
+                      <div className="flex items-center gap-3 text-xs text-zinc-300 font-medium">
+                        <div className="p-1.5 bg-white/5 rounded-md text-zinc-400"><Calendar size={14} /></div>
+                        <span>Terbit: {new Date(cert.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
                       </div>
                     )}
                     {cert.credential_id && (
-                      <div className="flex items-center gap-2">
-                        <Award size={14} className="text-zinc-500" />
-                        <span>ID: {cert.credential_id}</span>
+                      <div className="flex items-center gap-3 text-xs text-zinc-300 font-medium">
+                        <div className="p-1.5 bg-white/5 rounded-md text-zinc-400"><Award size={14} /></div>
+                        <span className="truncate">ID: {cert.credential_id}</span>
                       </div>
                     )}
                   </div>
@@ -121,9 +130,9 @@ export function Certificates() {
                       href={cert.credential_url} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="mt-6 flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-yellow-500 hover:text-black text-white font-bold rounded-xl transition-all"
+                      className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-yellow-500 hover:text-black text-white text-sm font-bold rounded-xl transition-all"
                     >
-                      Lihat Kredensial <ExternalLink size={16} />
+                      Verifikasi Kredensial <ExternalLink size={16} />
                     </a>
                   )}
                 </div>
@@ -132,6 +141,36 @@ export function Certificates() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Modal / Lightbox for Image */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-md cursor-pointer"
+          >
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-6 right-6 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full backdrop-blur-md transition-all z-50"
+            >
+              <X size={24} />
+            </button>
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.3 }}
+              src={selectedImage}
+              alt="Certificate Detail"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-default"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
