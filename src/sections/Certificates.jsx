@@ -65,111 +65,110 @@ export function Certificates() {
           </div>
         )}
 
-        {/* Certificates Carousel */}
-        <div className="relative group/slider">
-          {/* Nav Buttons (Desktop) */}
-          <button 
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 z-20 bg-zinc-800/80 hover:bg-yellow-500 text-white hover:text-black p-3 rounded-full backdrop-blur-md border border-white/10 opacity-0 group-hover/slider:opacity-100 transition-all shadow-xl hidden md:block"
-          >
-            <ChevronLeft size={24} />
-          </button>
+        {/* Elegant Non-Boxy Layout: Interactive List + Sticky Image */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mt-8">
           
-          <button 
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 z-20 bg-zinc-800/80 hover:bg-yellow-500 text-white hover:text-black p-3 rounded-full backdrop-blur-md border border-white/10 opacity-0 group-hover/slider:opacity-100 transition-all shadow-xl hidden md:block"
-          >
-            <ChevronRight size={24} />
-          </button>
-
-          <motion.div 
-            layout 
-            ref={scrollContainerRef}
-            className="flex overflow-x-auto gap-6 pb-12 pt-4 px-4 -mx-4 md:px-2 md:mx-0 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            <AnimatePresence>
-              {filteredCertificates.map(cert => (
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9, width: 0, margin: 0 }}
-                  transition={{ duration: 0.3 }}
-                  key={cert.id}
-                  className="group bg-zinc-900/50 backdrop-blur-xl border border-white/10 hover:border-yellow-500/50 rounded-3xl overflow-hidden shadow-xl transition-all flex flex-col shrink-0 snap-center w-[85vw] md:w-[480px]"
+          {/* Sticky Image Viewer (Left side) */}
+          <div className="lg:col-span-6 lg:sticky lg:top-32 order-1 relative z-20">
+            <AnimatePresence mode="wait">
+              {activeCert && (
+                <motion.div
+                  key={activeCert.id}
+                  initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
+                  animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+                  exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
+                  transition={{ duration: 0.5, type: "spring", bounce: 0.2 }}
+                  className="w-full aspect-[4/3] md:aspect-square lg:h-[70vh] flex flex-col items-center justify-center group relative"
                 >
-                  {/* Image Section */}
-                  <div 
-                    className="w-full bg-black/50 relative overflow-hidden flex items-center justify-center p-6 cursor-pointer group/img h-[280px] md:h-[320px]"
-                    onClick={() => cert.image_url && setSelectedImage(cert.image_url)}
-                  >
-                    {cert.image_url ? (
-                      <>
-                        <img 
-                          src={cert.image_url} 
-                          alt={cert.title} 
-                          className="max-w-full max-h-[90%] object-contain group-hover/img:scale-105 transition-transform duration-500 drop-shadow-2xl" 
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-[2px]">
-                          <div className="bg-yellow-500 text-black p-3 rounded-full transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.5)]">
-                            <ZoomIn size={24} />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-xl min-h-[200px]">
-                        <Award size={48} className="text-zinc-600" />
+                  {/* Frameless glowing background effect */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-brand-blue/20 via-transparent to-yellow-500/20 rounded-full blur-[100px] -z-10 opacity-30 group-hover:opacity-60 transition-opacity duration-700" />
+                  
+                  {activeCert.image_url ? (
+                    <div 
+                      className="relative w-full h-full flex items-center justify-center cursor-pointer" 
+                      onClick={() => setSelectedImage(activeCert.image_url)}
+                    >
+                      <img 
+                        src={activeCert.image_url} 
+                        alt={activeCert.title} 
+                        className="max-w-full max-h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] group-hover:scale-[1.02] transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                         <div className="bg-yellow-500 text-black p-4 rounded-full shadow-[0_0_40px_rgba(234,179,8,0.6)] transform translate-y-8 group-hover:translate-y-0 transition-all duration-500">
+                            <ZoomIn size={32} />
+                         </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                     <div className="text-zinc-600 flex flex-col items-center"><Award size={64} className="mb-4 opacity-50" /> <span className="font-medium tracking-widest uppercase text-sm">Preview Tidak Tersedia</span></div>
+                  )}
 
-                  {/* Content Section */}
-                  <div className="p-8 flex-grow flex flex-col border-t border-white/5">
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="px-4 py-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-xs font-bold tracking-widest uppercase">
+                  {activeCert.credential_url && (
+                    <div className="absolute bottom-0 left-0 w-full flex justify-center translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 z-30">
+                       <a href={activeCert.credential_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-8 py-4 bg-white text-black font-black uppercase tracking-wider text-sm rounded-full shadow-2xl hover:bg-yellow-500 hover:scale-105 transition-all">
+                         Verifikasi Kredensial <ExternalLink size={18} />
+                       </a>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Interactive Text List (Right side) */}
+          <div className="lg:col-span-6 flex flex-col order-2 relative">
+            {/* Minimalist vertical line indicator */}
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent hidden lg:block" />
+
+            {filteredCertificates.map((cert) => {
+              const isActive = activeCert?.id === cert.id;
+              return (
+                <div 
+                  key={cert.id}
+                  onMouseEnter={() => setActiveCertId(cert.id)}
+                  onClick={() => { 
+                    setActiveCertId(cert.id); 
+                    if(window.innerWidth < 1024) document.getElementById('certificates').scrollIntoView({behavior: 'smooth', block: 'start'}) 
+                  }}
+                  className={`group flex flex-col py-10 lg:py-12 border-b border-white/5 cursor-pointer transition-all duration-500 relative ${
+                    isActive ? 'opacity-100' : 'opacity-30 hover:opacity-60'
+                  }`}
+                >
+                  {/* Active Indicator Line */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 transition-all duration-500 hidden lg:block ${isActive ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`} />
+
+                  <div className={`transition-all duration-500 ${isActive ? 'lg:pl-12' : 'lg:pl-8'}`}>
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className={`text-xs font-bold tracking-widest uppercase transition-colors ${isActive ? 'text-yellow-500' : 'text-zinc-500'}`}>
                         {cert.category}
                       </span>
+                      {cert.issue_date && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                          <span className="text-xs font-medium text-zinc-500 flex items-center gap-1.5">
+                            <Calendar size={12} /> {new Date(cert.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}
+                          </span>
+                        </>
+                      )}
                     </div>
                     
-                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight group-hover:text-yellow-400 transition-colors">
+                    <h3 className={`text-3xl md:text-4xl font-black mb-4 leading-tight transition-colors duration-500 ${isActive ? 'text-white' : 'text-zinc-400'}`}>
                       {cert.title}
                     </h3>
-                    <p className="text-zinc-400 font-medium text-base mb-6">
-                      {cert.issuer}
-                    </p>
-
-                    <div className="mt-auto space-y-3 p-5 bg-black/30 rounded-2xl border border-white/5">
-                      {cert.issue_date && (
-                        <div className="flex items-center gap-3 text-sm text-zinc-300 font-medium">
-                          <div className="p-2 bg-white/5 rounded-lg text-zinc-400"><Calendar size={16} /></div>
-                          <span>Terbit: {new Date(cert.issue_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
-                        </div>
-                      )}
+                    
+                    <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-400">
+                      <span className="flex items-center gap-2"><Award size={18} className={isActive ? 'text-brand-blue' : ''} /> {cert.issuer}</span>
                       {cert.credential_id && (
-                        <div className="flex items-center gap-3 text-sm text-zinc-300 font-medium">
-                          <div className="p-2 bg-white/5 rounded-lg text-zinc-400"><Award size={16} /></div>
-                          <span className="truncate">ID: {cert.credential_id}</span>
-                        </div>
+                        <span className="flex items-center gap-2 font-mono text-xs bg-white/5 px-3 py-1.5 rounded-md border border-white/5">
+                          ID: {cert.credential_id}
+                        </span>
                       )}
                     </div>
-
-                    {cert.credential_url && (
-                      <a 
-                        href={cert.credential_url} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="mt-6 flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-yellow-500 hover:text-black text-white text-sm font-bold rounded-xl transition-all"
-                      >
-                        Verifikasi Kredensial <ExternalLink size={18} />
-                      </a>
-                    )}
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
